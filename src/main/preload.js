@@ -36,4 +36,13 @@ contextBridge.exposeInMainWorld('api', {
   // Config
   getDataPath:    () => ipcRenderer.invoke('config:getDataPath'),
   openDataFolder: () => ipcRenderer.invoke('config:openDataFolder'),
+
+  // Characters
+  getCharacters:       ()      => ipcRenderer.invoke('characters:get'),
+  addCharacter:        (data)  => ipcRenderer.invoke('characters:add', data),
+  deleteCharacter:     (id)    => ipcRenderer.invoke('characters:delete', id),
+  setCharacterImage:   (id)    => ipcRenderer.invoke('characters:setImage', id),
+  setCharacterTasks:   (data)  => ipcRenderer.invoke('characters:setTasks', data),
+  toggleCharacterTask: (data)  => ipcRenderer.invoke('characters:toggleTask', data),
+  setCharacterInfo:    (data)  => ipcRenderer.invoke('characters:setInfo', data),
 });

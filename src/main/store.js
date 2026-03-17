@@ -6,6 +6,7 @@ const store = new Store({
     gamePath: '',
     accounts: [],
     loginDelay: 3000,
+    characters: [],
   }
 });
 
