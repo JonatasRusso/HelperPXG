@@ -31,9 +31,10 @@ const GetCurrentThreadId       = kernel32.func('GetCurrentThreadId',     'uint32
 const INPUT_SIZE         = 40;
 const KEYEVENTF_KEYUP    = 0x0002;
 const KEYEVENTF_UNICODE  = 0x0004;
+const KEYEVENTF_SCANCODE = 0x0008;
 const VK_MENU            = 0xA4;  // Alt
-const VK_TAB             = 0x09;
-const VK_RETURN          = 0x0D;
+const SC_TAB             = 0x0F;  // scan code TAB
+const SC_RETURN          = 0x1C;  // scan code ENTER
 
 function makeKeyInput(wVk, wScan, dwFlags) {
   const buf = Buffer.alloc(INPUT_SIZE, 0);
@@ -44,12 +45,25 @@ function makeKeyInput(wVk, wScan, dwFlags) {
   return buf;
 }
 
+function tapScan(sc) {
+  const buf = Buffer.concat([
+    makeKeyInput(0, sc, KEYEVENTF_SCANCODE),
+    makeKeyInput(0, sc, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP),
+  ]);
+  return SendInputFn(2, buf, INPUT_SIZE);
+}
+
 function tap(vk) {
   const buf = Buffer.concat([
     makeKeyInput(vk, 0, 0),
     makeKeyInput(vk, 0, KEYEVENTF_KEYUP),
   ]);
-  SendInputFn(2, buf, INPUT_SIZE);
+  return SendInputFn(2, buf, INPUT_SIZE);
+}
+
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function typeText(text) {
@@ -61,10 +75,6 @@ function typeText(text) {
     ]);
     SendInputFn(2, buf, INPUT_SIZE);
   }
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -97,7 +107,7 @@ module.exports = function registerAutologinHandlers() {
     const myThread = GetCurrentThreadId();
 
     if (fgThread !== myThread) AttachThreadInput(fgThread, myThread, true);
-    tap(VK_MENU);  // Alt: desbloqueia restrição de focus steal do Windows
+    tap(VK_MENU);
     BringWindowToTop(hwnd);
     SetForegroundWindow(hwnd);
     if (fgThread !== myThread) AttachThreadInput(fgThread, myThread, false);
@@ -105,16 +115,18 @@ module.exports = function registerAutologinHandlers() {
     // 4. Aguarda foco transferir + delay configurado
     await sleep(Math.max(delay, 200));
 
-    if (GetForegroundWindow() !== hwnd) {
+    if (koffi.address(GetForegroundWindow()) !== koffi.address(hwnd)) {
       return { success: false, error: 'Não foi possível focar a janela do jogo.' };
     }
 
     // 5. Digita credenciais via SendInput
     typeText(account.username);
-    tap(VK_TAB);
+    await sleep(80);
+    tapScan(SC_TAB);
     await sleep(80);
     typeText(password);
-    tap(VK_RETURN);
+    await sleep(80);
+    tapScan(SC_RETURN);
 
     return { success: true };
   });
