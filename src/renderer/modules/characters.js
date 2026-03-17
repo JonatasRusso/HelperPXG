@@ -29,13 +29,14 @@ function renderCharacters() {
   }
 
   grid.innerHTML = characters.map(c => {
-    const bgStyle   = c.image ? `background-image:url('${c.image}');` : '';
+    // c.image is always a base64 data URI; strip single-quotes to stay safe inside style=""
+    const bgStyle   = c.image ? `background-image:url('${c.image.replace(/'/g, '')}');` : '';
     const placeholder = !c.image
       ? `<div class="char-avatar-placeholder">${escapeHtml(c.name.charAt(0).toUpperCase())}</div>`
       : '';
 
     const color = levelBadgeStyle(c.level);
-    const levelBadge = `<span class="char-level-badge" style="color:${color};border-color:${color}">${c.level}</span>`;
+    const levelBadge = `<span class="char-level-badge" style="color:${color};border-color:${color}">${Number(c.level)}</span>`;
     const clanHtml   = c.clan ? `<span class="char-clan">${escapeHtml(c.clan)}</span>` : '';
     const serverHtml = `<span class="char-server">${escapeHtml(c.server)}</span>`;
 
@@ -98,8 +99,7 @@ function openCharEdit(id) {
           ? `<img class="char-task-checklist-img" src="${t.image}" />`
           : '';
         return `<label class="char-task-check-label">
-          <input type="checkbox" value="${t.id}" ${checked ? 'checked' : ''}
-            onchange="charSetTasks(${id})" />
+          <input type="checkbox" value="${t.id}" ${checked ? 'checked' : ''} />
           ${img}
           <span>${escapeHtml(t.title)}</span>
         </label>`;
@@ -119,6 +119,7 @@ function openCharEdit(id) {
 
       <label class="field-label">Tasks</label>
       <div class="char-tasklist">${taskChecklist}</div>
+      ${allTasks.length ? `<button class="btn-secondary" style="margin-bottom:12px" onclick="charSetTasks(${id})">Salvar tasks</button>` : ''}
 
       <button class="btn-danger" onclick="charDelete(${id})">Excluir personagem</button>
     </div>`;
