@@ -73,17 +73,15 @@ module.exports = function registerTaskHandlers() {
     const { tasks: reset, changed, resetIds } = checkResets(tasks);
     if (changed) {
       store.set('tasks', reset);
-      if (resetIds.size > 0) {
-        const chars = store.get('characters');
-        const updatedChars = chars.map(c => {
-          const newState = { ...c.taskState };
-          resetIds.forEach(id => {
-            if (c.taskIds.includes(id)) newState[String(id)] = false;
-          });
-          return { ...c, taskState: newState };
+      const chars = store.get('characters');
+      const updatedChars = chars.map(c => {
+        const newState = { ...c.taskState };
+        resetIds.forEach(id => {
+          if (c.taskIds.includes(id)) newState[String(id)] = false;
         });
-        store.set('characters', updatedChars);
-      }
+        return { ...c, taskState: newState };
+      });
+      store.set('characters', updatedChars);
     }
     return reset;
   });
