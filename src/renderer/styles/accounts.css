@@ -81,14 +81,11 @@
   align-items: center;
   gap: 10px;
   padding: 10px 8px;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: background 0.1s, border-color 0.1s;
   cursor: default;
-}
-.account-config-row + .account-config-row {
-  border-top: 1px solid var(--border);
-  border-radius: 0;
+  margin-bottom: 6px;
 }
 .account-config-row.drag-over {
   border-color: var(--accent);
@@ -143,8 +140,9 @@
 /* ── Account panel (accordion) ── */
 .account-panel {
   background: rgba(255, 255, 255, 0.02);
-  border-left: 2px solid var(--border);
-  margin: 0 8px 4px 32px;
+  border: 1px solid var(--border);
+  border-top: none;
+  margin: -6px 0 6px 0;
   border-radius: 0 0 var(--radius) var(--radius);
 }
 .account-panel-inner {
@@ -186,6 +184,29 @@
 .panel-status {
   min-height: 16px;
   font-size: 12px;
+}
+.panel-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.btn-danger {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid rgba(232, 93, 93, 0.4);
+  border-radius: var(--radius);
+  color: #e85d5d;
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-danger:hover {
+  background: rgba(232, 93, 93, 0.1);
+  border-color: #e85d5d;
 }
 
 /* ── VIP badge ── */

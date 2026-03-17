@@ -6,7 +6,7 @@ Aplicativo desktop Windows feito com Electron. Helper para jogadores com:
 - Launcher (abre o jogo pelo caminho do .exe)
 - Auto-login (foca janela do jogo via WScript.Shell.AppActivate + cola credenciais via clipboard + SendKeys)
 
-## Versão atual: 0.0.6
+## Versão atual: 0.0.7
 
 ## Stack
 - **Electron 41** — framework desktop

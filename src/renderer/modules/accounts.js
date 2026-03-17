@@ -62,7 +62,6 @@ function renderAccountsConfig() {
       <span class="account-config-user">${escapeHtml(a.username)}</span>
       <button class="btn-chevron" draggable="false"
         onclick="toggleAccountPanel(${a.id}, this)" title="Configurações">▸</button>
-      <button class="task-delete" draggable="false" onclick="deleteAccount(${a.id})" title="Remover">✕</button>
     </div>
     <div class="account-panel" id="panel-${a.id}" style="display:none">
       <div class="account-panel-inner">
@@ -76,6 +75,10 @@ function renderAccountsConfig() {
             onclick="saveVip(${a.id})">Salvar</button>
         </div>
         <div class="panel-status" id="vip-status-${a.id}"></div>
+        <div class="panel-actions">
+          <button class="btn-secondary" onclick="alert('Em breve')">+ Adicionar personagem</button>
+          <button class="btn-danger" onclick="deleteAccount(${a.id})">Remover conta</button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -172,6 +175,9 @@ function toggleAccountPanel(id, btn) {
   const open = panel.style.display === 'block';
   panel.style.display = open ? 'none' : 'block';
   btn.textContent = open ? '▸' : '▾';
+  const row = btn.closest('.account-config-row');
+  row.style.borderRadius = open ? '' : 'var(--radius) var(--radius) 0 0';
+  row.style.marginBottom = open ? '' : '0';
 }
 
 async function saveVip(id) {
