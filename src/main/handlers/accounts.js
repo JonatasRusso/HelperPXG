@@ -2,7 +2,9 @@ const { ipcMain, safeStorage } = require('electron');
 const store = require('../store');
 
 function publicAccounts(accounts) {
-  return accounts.map(({ id, name, username }) => ({ id, name, username }));
+  return accounts.map(({ id, name, username, vipDays, vipAddedAt }) => ({
+    id, name, username, vipDays, vipAddedAt
+  }));
 }
 
 module.exports = function registerAccountHandlers() {
@@ -30,5 +32,14 @@ module.exports = function registerAccountHandlers() {
     const reordered = ids.map(id => accounts.find(a => a.id === id)).filter(Boolean);
     store.set('accounts', reordered);
     return publicAccounts(reordered);
+  });
+
+  ipcMain.handle('accounts:setVip', (_, id, days) => {
+    const accounts = store.get('accounts');
+    const updated = accounts.map(a =>
+      a.id === id ? { ...a, vipDays: days, vipAddedAt: Date.now() } : a
+    );
+    store.set('accounts', updated);
+    return publicAccounts(updated);
   });
 };
