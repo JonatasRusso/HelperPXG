@@ -6,7 +6,9 @@
 }
 .account-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   gap: 4px;
   padding: 14px 18px;
   background: var(--surface);
@@ -15,6 +17,11 @@
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   animation: slideIn 0.15s ease;
+}
+.account-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .account-card:hover {
   border-color: var(--accent);
@@ -116,3 +123,82 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ── Accordion chevron button ── */
+.btn-chevron {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.btn-chevron:hover {
+  color: var(--accent);
+}
+
+/* ── Account panel (accordion) ── */
+.account-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid var(--border);
+  margin: 0 8px 4px 32px;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.account-panel-inner {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.panel-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.panel-vip-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.panel-vip-input {
+  width: 80px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+.panel-vip-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.panel-vip-save {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+.panel-status {
+  min-height: 16px;
+  font-size: 12px;
+}
+
+/* ── VIP badge ── */
+.vip-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.vip-green  { background: rgba(76, 175, 80, 0.15);  color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
+.vip-yellow { background: rgba(232, 184, 75, 0.15); color: #e8b84b; border: 1px solid rgba(232, 184, 75, 0.3); }
+.vip-red    { background: rgba(232, 93, 93, 0.15);  color: #e85d5d; border: 1px solid rgba(232, 93, 93, 0.3); }
+.vip-none   { background: transparent; color: #666; border: 1px solid #333; }

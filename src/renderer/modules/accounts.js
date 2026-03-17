@@ -2,6 +2,21 @@
 let accounts = [];
 let dragSrcIdx = null;
 
+function vipRemaining(account) {
+  if (!account.vipDays || !account.vipAddedAt) return null;
+  const elapsed = Math.floor((Date.now() - account.vipAddedAt) / 86400000);
+  return Math.max(0, account.vipDays - elapsed);
+}
+
+function vipBadge(account) {
+  const days = vipRemaining(account);
+  if (days === null || days === 0) {
+    return `<span class="vip-badge vip-none">Sem VIP</span>`;
+  }
+  const cls = days >= 10 ? 'vip-green' : days >= 3 ? 'vip-yellow' : 'vip-red';
+  return `<span class="vip-badge ${cls}">${days}d</span>`;
+}
+
 async function loadAccounts() {
   accounts = await window.api.getAccounts();
   renderAccountsLogin();
@@ -20,8 +35,11 @@ function renderAccountsLogin() {
   }
   list.innerHTML = accounts.map(a => `
     <div class="account-card" onclick="runAutoLoginFor(${a.id})">
-      <div class="account-card-name">${escapeHtml(a.name)}</div>
-      <div class="account-card-user">${escapeHtml(a.username)}</div>
+      <div class="account-card-main">
+        <div class="account-card-name">${escapeHtml(a.name)}</div>
+        <div class="account-card-user">${escapeHtml(a.username)}</div>
+      </div>
+      ${vipBadge(a)}
     </div>
   `).join('');
 }
@@ -42,7 +60,23 @@ function renderAccountsConfig() {
       <span class="drag-handle">⠿</span>
       <span class="account-config-name">${escapeHtml(a.name)}</span>
       <span class="account-config-user">${escapeHtml(a.username)}</span>
+      <button class="btn-chevron" draggable="false"
+        onclick="toggleAccountPanel(${a.id}, this)" title="Configurações">▸</button>
       <button class="task-delete" draggable="false" onclick="deleteAccount(${a.id})" title="Remover">✕</button>
+    </div>
+    <div class="account-panel" id="panel-${a.id}" style="display:none">
+      <div class="account-panel-inner">
+        <label class="panel-label">Dias de VIP</label>
+        <div class="panel-vip-row">
+          <input type="number" min="0" max="999"
+            class="panel-vip-input" id="vip-input-${a.id}"
+            value="${vipRemaining(a) !== null ? vipRemaining(a) : ''}"
+            placeholder="0" />
+          <button class="btn-primary panel-vip-save"
+            onclick="saveVip(${a.id})">Salvar</button>
+        </div>
+        <div class="panel-status" id="vip-status-${a.id}"></div>
+      </div>
     </div>
   `).join('');
 }
@@ -130,4 +164,24 @@ async function deleteAccount(id) {
 function toggleNewPass() {
   const input = document.getElementById('new-acc-pass');
   input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+// ── Accordion + VIP ──
+function toggleAccountPanel(id, btn) {
+  const panel = document.getElementById('panel-' + id);
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? '▸' : '▾';
+}
+
+async function saveVip(id) {
+  const input = document.getElementById('vip-input-' + id);
+  const days = parseInt(input.value, 10);
+  if (isNaN(days) || days < 0) {
+    setStatus('vip-status-' + id, '✗ Valor inválido.', 'err');
+    return;
+  }
+  accounts = await window.api.setVip(id, days);
+  setStatus('vip-status-' + id, '✓ Salvo!', 'ok');
+  renderAccountsLogin();
 }
