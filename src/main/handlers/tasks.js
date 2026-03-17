@@ -1,12 +1,86 @@
 const { ipcMain } = require('electron');
 const store = require('../store');
 
-module.exports = function registerTaskHandlers() {
-  ipcMain.handle('tasks:get', () => store.get('tasks'));
+// ─── BRT reset time helper ────────────────────────────────────────────────────
+// BRT = UTC-3. Server save resets at 07:40 BRT = 10:40 UTC.
+const RESET_HOUR_UTC = 10;
+const RESET_MIN_UTC  = 40;
 
-  ipcMain.handle('tasks:add', (_, title) => {
-    const tasks = store.get('tasks');
-    const newTask = { id: Date.now(), title, done: false, createdAt: new Date().toISOString() };
+function calcNextResetAt(type, serverSave) {
+  const now = Date.now();
+
+  if (!serverSave) {
+    const durations = { daily: 86400000, weekly: 7 * 86400000, monthly: 30 * 86400000 };
+    return now + durations[type];
+  }
+
+  // Current date/time expressed in BRT (UTC-3)
+  const brtNow  = new Date(now - 3 * 60 * 60 * 1000);
+  const brtYear = brtNow.getUTCFullYear();
+  const brtMonth= brtNow.getUTCMonth();
+  const brtDay  = brtNow.getUTCDate();
+  const brtDow  = brtNow.getUTCDay(); // 0=Sun 1=Mon … 6=Sat
+
+  // UTC timestamp for a given BRT calendar date at 07:40 BRT
+  function resetOn(y, m, d) {
+    return Date.UTC(y, m, d, RESET_HOUR_UTC, RESET_MIN_UTC, 0, 0);
+  }
+
+  const todayReset = resetOn(brtYear, brtMonth, brtDay);
+
+  if (type === 'daily') {
+    if (now < todayReset) return todayReset;
+    const tomorrow = new Date(brtNow);
+    tomorrow.setUTCDate(brtDay + 1);
+    return resetOn(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate());
+  }
+
+  if (type === 'weekly') {
+    if (brtDow === 1 && now < todayReset) return todayReset;
+    const daysUntil = (8 - brtDow) % 7 || 7;
+    const nextMon = new Date(brtNow);
+    nextMon.setUTCDate(brtDay + daysUntil);
+    return resetOn(nextMon.getUTCFullYear(), nextMon.getUTCMonth(), nextMon.getUTCDate());
+  }
+
+  // monthly
+  if (brtDay === 1 && now < todayReset) return todayReset;
+  return Date.UTC(brtYear, brtMonth + 1, 1, RESET_HOUR_UTC, RESET_MIN_UTC, 0, 0);
+}
+
+function checkResets(tasks) {
+  const now = Date.now();
+  let changed = false;
+  const updated = tasks.map(t => {
+    if (t.nextResetAt && now >= t.nextResetAt) {
+      changed = true;
+      return { ...t, done: false, nextResetAt: calcNextResetAt(t.type, t.serverSave) };
+    }
+    return t;
+  });
+  return { tasks: updated, changed };
+}
+
+// ─── Handlers ────────────────────────────────────────────────────────────────
+module.exports = function registerTaskHandlers() {
+  ipcMain.handle('tasks:get', () => {
+    let tasks = store.get('tasks');
+    tasks = tasks.filter(t => t.type);
+    const { tasks: reset, changed } = checkResets(tasks);
+    if (changed) store.set('tasks', reset);
+    return reset;
+  });
+
+  ipcMain.handle('tasks:add', (_, { title, type, serverSave }) => {
+    const tasks = store.get('tasks').filter(t => t.type);
+    const newTask = {
+      id: Date.now(),
+      title,
+      type,
+      serverSave: !!serverSave,
+      done: false,
+      nextResetAt: calcNextResetAt(type, serverSave),
+    };
     store.set('tasks', [...tasks, newTask]);
     return newTask;
   });
@@ -21,5 +95,12 @@ module.exports = function registerTaskHandlers() {
     const tasks = store.get('tasks').filter(t => t.id !== id);
     store.set('tasks', tasks);
     return tasks;
+  });
+
+  ipcMain.handle('tasks:reorder', (_, ids) => {
+    const tasks = store.get('tasks');
+    const reordered = ids.map(id => tasks.find(t => t.id === id)).filter(Boolean);
+    store.set('tasks', reordered);
+    return reordered;
   });
 };
