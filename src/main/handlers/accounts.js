@@ -24,6 +24,9 @@ module.exports = function registerAccountHandlers() {
   ipcMain.handle('accounts:delete', (_, id) => {
     const updated = store.get('accounts').filter(a => a.id !== id);
     store.set('accounts', updated);
+    // Remove all characters linked to this account
+    const chars = store.get('characters').filter(c => c.accountId !== id);
+    store.set('characters', chars);
     return publicAccounts(updated);
   });
 

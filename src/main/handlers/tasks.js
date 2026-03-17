@@ -53,14 +53,16 @@ function calcNextResetAt(type, serverSave) {
 function checkResets(tasks) {
   const now = Date.now();
   let changed = false;
+  const resetIds = new Set();
   const updated = tasks.map(t => {
     if (t.nextResetAt && now >= t.nextResetAt) {
       changed = true;
+      resetIds.add(t.id);
       return { ...t, done: false, nextResetAt: calcNextResetAt(t.type, t.serverSave) };
     }
     return t;
   });
-  return { tasks: updated, changed };
+  return { tasks: updated, changed, resetIds };
 }
 
 // ─── Handlers ────────────────────────────────────────────────────────────────
@@ -68,8 +70,21 @@ module.exports = function registerTaskHandlers() {
   ipcMain.handle('tasks:get', () => {
     let tasks = store.get('tasks');
     tasks = tasks.filter(t => t.type);
-    const { tasks: reset, changed } = checkResets(tasks);
-    if (changed) store.set('tasks', reset);
+    const { tasks: reset, changed, resetIds } = checkResets(tasks);
+    if (changed) {
+      store.set('tasks', reset);
+      if (resetIds.size > 0) {
+        const chars = store.get('characters');
+        const updatedChars = chars.map(c => {
+          const newState = { ...c.taskState };
+          resetIds.forEach(id => {
+            if (c.taskIds.includes(id)) newState[String(id)] = false;
+          });
+          return { ...c, taskState: newState };
+        });
+        store.set('characters', updatedChars);
+      }
+    }
     return reset;
   });
 
@@ -96,6 +111,14 @@ module.exports = function registerTaskHandlers() {
   ipcMain.handle('tasks:delete', (_, id) => {
     const tasks = store.get('tasks').filter(t => t.id !== id);
     store.set('tasks', tasks);
+    // Remove deleted task from all characters
+    const chars = store.get('characters');
+    const updatedChars = chars.map(c => {
+      const newState = { ...c.taskState };
+      delete newState[String(id)];
+      return { ...c, taskIds: c.taskIds.filter(tid => tid !== id), taskState: newState };
+    });
+    store.set('characters', updatedChars);
     return tasks;
   });
 
