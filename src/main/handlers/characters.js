@@ -67,6 +67,7 @@ module.exports = function registerCharacterHandlers() {
     const updated = chars.map(c => {
       if (c.id !== id) return c;
       const key = String(taskId);
+      if (!c.taskIds.includes(Number(taskId))) return c;
       return { ...c, taskState: { ...c.taskState, [key]: !c.taskState[key] } };
     });
     store.set('characters', updated);
@@ -78,7 +79,7 @@ module.exports = function registerCharacterHandlers() {
   // setInfo consolidates both into one handler.
   ipcMain.handle('characters:setInfo', (_, { id, level, clan }) => {
     const updated = store.get('characters').map(c =>
-      c.id === id ? { ...c, level: Number(level), clan: clan || '' } : c
+      c.id === id ? { ...c, level: Number(level) || 1, clan: clan || '' } : c
     );
     store.set('characters', updated);
     return updated;
