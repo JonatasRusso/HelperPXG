@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;" />
   <title>PxG Helper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@
       <div class="nav-items">
         <button class="nav-btn active" data-page="login" onclick="navigate('login')">
           <span class="nav-icon">🔑</span>
-          <span>Auto-Login</span>
+          <span>Login</span>
         </button>
         <button class="nav-btn" data-page="tasks" onclick="navigate('tasks')">
           <span class="nav-icon">☑</span>
@@ -57,7 +57,7 @@
       <!-- AUTO-LOGIN PAGE -->
       <section id="page-login" class="page active">
         <div class="page-header">
-          <h1>Auto-Login</h1>
+          <h1>Login</h1>
         </div>
         <div id="account-list" class="account-list"></div>
         <div id="login-status" class="status-msg"></div>
