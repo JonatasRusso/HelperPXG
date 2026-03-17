@@ -1,4 +1,6 @@
-const { ipcMain } = require('electron');
+const { ipcMain, dialog } = require('electron');
+const fs   = require('fs');
+const path = require('path');
 const store = require('../store');
 
 // ─── BRT reset time helper ────────────────────────────────────────────────────
@@ -102,5 +104,20 @@ module.exports = function registerTaskHandlers() {
     const reordered = ids.map(id => tasks.find(t => t.id === id)).filter(Boolean);
     store.set('tasks', reordered);
     return reordered;
+  });
+
+  ipcMain.handle('tasks:setImage', async (_, id) => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Imagens', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] }],
+    });
+    if (canceled || !filePaths.length) return null;
+    const ext     = path.extname(filePaths[0]).slice(1).toLowerCase();
+    const mime    = ext === 'jpg' ? 'jpeg' : ext;
+    const dataUrl = `data:image/${mime};base64,${fs.readFileSync(filePaths[0]).toString('base64')}`;
+    const tasks   = store.get('tasks');
+    const updated = tasks.map(t => t.id === id ? { ...t, image: dataUrl } : t);
+    store.set('tasks', updated);
+    return updated.filter(t => t.type);
   });
 };
