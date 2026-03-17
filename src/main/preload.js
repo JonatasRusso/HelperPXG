@@ -7,10 +7,11 @@ contextBridge.exposeInMainWorld('api', {
   close:    () => ipcRenderer.send('window:close'),
 
   // Tasks
-  getTasks:    () => ipcRenderer.invoke('tasks:get'),
-  addTask:     (title) => ipcRenderer.invoke('tasks:add', title),
-  toggleTask:  (id)    => ipcRenderer.invoke('tasks:toggle', id),
-  deleteTask:  (id)    => ipcRenderer.invoke('tasks:delete', id),
+  getTasks:     ()      => ipcRenderer.invoke('tasks:get'),
+  addTask:      (data)  => ipcRenderer.invoke('tasks:add', data),
+  toggleTask:   (id)    => ipcRenderer.invoke('tasks:toggle', id),
+  deleteTask:   (id)    => ipcRenderer.invoke('tasks:delete', id),
+  reorderTasks: (ids)   => ipcRenderer.invoke('tasks:reorder', ids),
 
   // Accounts
   getAccounts:     ()     => ipcRenderer.invoke('accounts:get'),
