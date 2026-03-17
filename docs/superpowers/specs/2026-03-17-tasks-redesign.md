@@ -61,6 +61,7 @@ In `tasks:get` handler (Main process), before returning tasks:
 | `tasks:add` | Accepts `{ title, type, serverSave }`, computes `nextResetAt` |
 | `tasks:toggle` | Unchanged |
 | `tasks:delete` | Unchanged |
+| `tasks:reorder` | Accepts `ids[]`, persists new order, returns updated tasks |
 
 ---
 
@@ -75,11 +76,12 @@ In `tasks:get` handler (Main process), before returning tasks:
 
 ### Task card (list item)
 
+- `▲` / `▼` buttons to move task up/down in the list
 - Checkbox (done toggle)
 - Task title (strikethrough when done)
 - Type badge: `D` (daily, blue) / `S` (weekly, purple) / `M` (monthly, orange)
 - Server save icon (🕐 or similar) shown when `serverSave: true`
-- Delete button (hover)
+- Delete button (always visible, not hover-only)
 
 ### Counter
 
@@ -93,3 +95,4 @@ Existing `done/total` counter remains.
 - Thumbnail images (future feature)
 - In-app periodic reset check (startup-only is sufficient)
 - Task editing (delete + recreate)
+- Drag-and-drop reorder (buttons ▲/▼ only)
