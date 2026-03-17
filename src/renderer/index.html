@@ -69,9 +69,22 @@
           <h1>Daily Tasks</h1>
           <span class="badge" id="tasks-counter">0/0</span>
         </div>
-        <div class="task-input-row">
-          <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
-          <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
+        <div class="task-form">
+          <div class="task-input-row">
+            <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
+            <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
+          </div>
+          <div class="task-options-row">
+            <select id="task-type" class="task-type-select">
+              <option value="daily">Diária</option>
+              <option value="weekly">Semanal</option>
+              <option value="monthly">Mensal</option>
+            </select>
+            <label class="task-server-save-label">
+              <input type="checkbox" id="task-server-save" />
+              Reseta no Server Save
+            </label>
+          </div>
         </div>
         <div id="task-list" class="task-list"></div>
       </section>
