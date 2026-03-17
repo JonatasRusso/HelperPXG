@@ -1,0 +1,31 @@
+{
+  "name": "pxg-helper",
+  "version": "0.0.5",
+  "description": "PxG Game Helper",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron . --dev",
+    "dev": "electron . --dev",
+    "build": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^41.0.2",
+    "electron-builder": "^26.8.1",
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.pxg.helper",
+    "productName": "PxG Helper",
+    "win": {
+      "target": "nsis",
+      "icon": "resources/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

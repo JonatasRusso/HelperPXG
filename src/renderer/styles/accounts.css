@@ -1,0 +1,118 @@
+/* ── Account cards (Auto-Login page) ── */
+.account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  animation: slideIn 0.15s ease;
+}
+.account-card:hover {
+  border-color: var(--accent);
+  background: rgba(232, 184, 75, 0.05);
+}
+.account-card-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+.account-card-user {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── Accounts (Config page) ── */
+.accounts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.btn-add-account {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-add-account:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.add-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+}
+.add-account-btns {
+  display: flex;
+  gap: 8px;
+}
+.account-config-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: background 0.1s, border-color 0.1s;
+  cursor: default;
+}
+.account-config-row + .account-config-row {
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+.account-config-row.drag-over {
+  border-color: var(--accent);
+  background: rgba(232, 184, 75, 0.06);
+}
+.account-config-row.dragging {
+  opacity: 0.4;
+}
+.drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 16px;
+  padding: 0 4px;
+  flex-shrink: 0;
+  user-select: none;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.account-config-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  min-width: 80px;
+}
+.account-config-user {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

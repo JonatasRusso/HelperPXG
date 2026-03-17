@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;" />
+  <title>PxG Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/variables.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/tasks.css" />
+  <link rel="stylesheet" href="styles/accounts.css" />
+</head>
+<body>
+  <!-- Custom Titlebar -->
+  <div class="titlebar">
+    <button class="hamburger-btn" onclick="toggleSidebar()" title="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="titlebar-drag">
+      <span class="titlebar-logo">⚔</span>
+      <span class="titlebar-title">PxG Helper</span>
+    </div>
+    <div class="titlebar-controls">
+      <button onclick="window.api.minimize()" title="Minimizar">─</button>
+      <button onclick="window.api.maximize()" title="Maximizar">□</button>
+      <button onclick="window.api.close()" class="close-btn" title="Fechar">✕</button>
+    </div>
+  </div>
+
+  <!-- Layout -->
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="nav-items">
+        <button class="nav-btn active" data-page="login" onclick="navigate('login')">
+          <span class="nav-icon">🔑</span>
+          <span>Auto-Login</span>
+        </button>
+        <button class="nav-btn" data-page="tasks" onclick="navigate('tasks')">
+          <span class="nav-icon">☑</span>
+          <span>Tasks</span>
+        </button>
+        <button class="nav-btn" data-page="config" onclick="navigate('config')">
+          <span class="nav-icon">⚙</span>
+          <span>Config</span>
+        </button>
+      </div>
+      <div class="sidebar-footer">v0.0.5</div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content">
+
+      <!-- AUTO-LOGIN PAGE -->
+      <section id="page-login" class="page active">
+        <div class="page-header">
+          <h1>Auto-Login</h1>
+        </div>
+        <div id="account-list" class="account-list"></div>
+        <div id="login-status" class="status-msg"></div>
+      </section>
+
+      <!-- TASKS PAGE -->
+      <section id="page-tasks" class="page">
+        <div class="page-header">
+          <h1>Daily Tasks</h1>
+          <span class="badge" id="tasks-counter">0/0</span>
+        </div>
+        <div class="task-input-row">
+          <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
+          <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
+        </div>
+        <div id="task-list" class="task-list"></div>
+      </section>
+
+      <!-- CONFIG PAGE -->
+      <section id="page-config" class="page">
+        <div class="page-header">
+          <h1>Config</h1>
+        </div>
+
+        <!-- Contas -->
+        <div class="card">
+          <div class="accounts-header">
+            <span class="field-label" style="margin:0">Contas</span>
+            <button class="btn-add-account" onclick="showAddAccountForm()">+ Adicionar</button>
+          </div>
+
+          <div id="add-account-form" class="add-account-form" style="display:none">
+            <input type="text" id="new-acc-name" placeholder="Nome (ex: Main)" maxlength="30" />
+            <input type="text" id="new-acc-user" placeholder="Usuário / E-mail" autocomplete="off" />
+            <div class="pass-row">
+              <input type="password" id="new-acc-pass" placeholder="Senha" autocomplete="off" />
+              <button class="btn-icon" onclick="toggleNewPass()" title="Mostrar/ocultar">👁</button>
+            </div>
+            <div id="add-account-status" class="status-msg"></div>
+            <div class="add-account-btns">
+              <button class="btn-primary" onclick="addAccount()">Salvar</button>
+              <button class="btn-secondary" onclick="hideAddAccountForm()">Cancelar</button>
+            </div>
+          </div>
+
+          <div id="accounts-config-list"></div>
+        </div>
+
+        <!-- Jogo -->
+        <div class="card">
+          <label class="field-label">Executável do jogo</label>
+          <div class="path-row">
+            <input type="text" id="game-path" placeholder="C:\...\game.exe" readonly />
+            <button class="btn-secondary" onclick="browseGame()">Procurar</button>
+          </div>
+          <div class="launch-actions">
+            <button class="btn-launch" onclick="launchGame()">▶ Abrir PxG</button>
+          </div>
+          <div id="launcher-status" class="status-msg"></div>
+        </div>
+
+        <!-- Delay -->
+        <div class="card">
+          <label class="field-label">
+            Delay do auto-login: <strong id="delay-label">3000ms</strong>
+          </label>
+          <input type="range" id="delay-slider" min="500" max="10000" step="500" value="3000"
+            oninput="updateDelay(this.value)" class="slider" />
+          <div class="delay-hint">Tempo de espera antes de digitar as credenciais</div>
+        </div>
+
+        <!-- Pasta de dados -->
+        <div class="card">
+          <label class="field-label">Pasta de dados</label>
+          <div class="path-row">
+            <input type="text" id="data-path" placeholder="Carregando..." readonly />
+            <button class="btn-secondary" onclick="openDataFolder()">Abrir pasta</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="modules/tasks.js"></script>
+  <script src="modules/accounts.js"></script>
+  <script src="modules/config.js"></script>
+  <script>
+    (async function () {
+      await loadTasks();
+      await loadAccounts();
+      await loadConfig();
+    })();
+  </script>
+</body>
+</html>
