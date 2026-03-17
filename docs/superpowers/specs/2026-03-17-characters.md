@@ -23,6 +23,7 @@ New store key: `characters: []`
   "name": "Gandalf",
   "image": "data:image/png;base64,...",
   "server": "Elysia",
+  "clan": "Dragons",
   "level": 350,
   "taskIds": [111, 222, 333],
   "taskState": { "111": false, "222": true }
@@ -30,12 +31,13 @@ New store key: `characters: []`
 ```
 
 - `accountId` — links character to an account
-- `taskIds` — IDs of tasks assigned to this character
+- `taskIds` — IDs of tasks assigned to this character (shown on hover, max 7 displayed)
 - `taskState` — per-task done/undone; keys are task IDs as strings
 - `image` — base64 data URL (same pattern as task images); optional, may be absent
+- `clan` — clan name string; optional, may be absent or empty string
 - Missing keys in `taskState` default to `false`
 - When `image` is absent, the avatar area renders a gray circle placeholder with the first letter of the character's name
-- When `taskIds` is empty, the task row renders nothing (no tasks assigned yet)
+- When `taskIds` is empty, hover reveals only the ✏ edit icon (no task thumbnails)
 
 ---
 
@@ -69,14 +71,14 @@ In `tasks:get`, after calling `checkResets`, if `resetIds` is non-empty, load `s
 | Channel | Description |
 |---|---|
 | `characters:get` | Returns all characters (image included) |
-| `characters:add` | Accepts `{ accountId, name, server, level }`, returns all characters |
+| `characters:add` | Accepts `{ accountId, name, server, clan, level }`, returns all characters |
 | `characters:delete` | Accepts `id`, returns all characters |
 | *(accounts:delete modified)* | When an account is deleted, also delete all characters with matching `accountId` |
 | *(tasks:delete modified)* | When a task is deleted, remove its ID from `taskIds` and its key from `taskState` in all characters |
 | `characters:setImage` | Opens file dialog, saves base64 to character, returns all characters |
 | `characters:setTasks` | Accepts `{ id, taskIds[] }`, updates `taskIds`, removes keys from `taskState` not in new `taskIds`, returns all |
 | `characters:toggleTask` | Accepts `{ id, taskId }`, flips `taskState[taskId]`, returns all characters |
-| `characters:setLevel` | Accepts `{ id, level }`, updates level, returns all characters |
+| `characters:setInfo` | Accepts `{ id, level, clan }`, updates both fields, returns all characters |
 
 ---
 
@@ -93,17 +95,29 @@ New nav button between Login and Tasks:
 
 Header: "Personagens"
 
-Each character rendered as a card:
-- **Left**: avatar image (if set) or placeholder icon; clicking opens file picker to set/replace
-- **Center**: name (bold), server (muted), level badge
-- **Tasks row**: assigned tasks shown as small thumbnails with checkbox overlay
-  - Gray border + unchecked = not done
-  - Green border + checkmark = done
-  - Clicking a task thumbnail toggles `taskState`
-- **Right**: ✏ button → expands edit panel below card
+Cards are displayed in a responsive grid (wrap as needed). Each card is **175×175 px**.
 
-**Edit panel (accordion):**
+**Card default state:**
+- Full-card background: character image (cover) or dark placeholder if no image
+- Clicking the card image/background opens file picker to set/replace avatar
+- Bottom overlay (always visible, semi-transparent dark gradient):
+  - Name (bold)
+  - Level badge (colored per level range)
+  - Clan name (muted, if set)
+  - Server (muted)
+
+**Card hover state:**
+- Background darkens (overlay `rgba(0,0,0,0.55)`)
+- Shows up to **7 task thumbnails** (first 7 of `taskIds`), each 32×32 px with a checkbox-style state indicator:
+  - Gray border + no check = not done
+  - Green border + ✓ = done
+  - Clicking a thumbnail toggles `taskState` for that task
+- **8th slot** is always a ✏ pencil icon button → opens the edit panel for that character
+- If fewer than 7 tasks assigned, remaining slots are empty (no placeholder)
+
+**Edit panel (accordion, opens below card row):**
 - Level input (number)
+- Clan input (text)
 - Task checklist: all existing tasks listed with checkboxes to assign/unassign
 - "Excluir personagem" danger button
 
@@ -114,6 +128,7 @@ Each character rendered as a card:
 Replace `alert('Em breve')` on "+ Adicionar personagem" button with a real inline form:
 - Input: Nome
 - Input: Servidor
+- Input: Clã (text, optional)
 - Input: Level (number)
 - Buttons: Salvar / Cancelar
 
@@ -160,3 +175,4 @@ The form captures `accountId` from the surrounding account context — `renderAc
 - Multiple servers / server list management
 - Task completion history
 - Character-to-character comparison
+- Clan management (adding/listing clans) — clan is a free-text field for now
