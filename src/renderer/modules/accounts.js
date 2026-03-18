@@ -200,10 +200,11 @@ async function addAccount() {
 
 async function deleteAccount(id) {
   accounts = await window.api.deleteAccount(id);
+  // Also refresh loginCharacters cache so house icons don't reference deleted account's chars
+  loginCharacters = await window.api.getCharacters();
   renderAccountsLogin();
   renderAccountsConfig();
   // Refresh characters page state if the module is loaded
-  // (loadCharacters is defined in characters.js, loaded after accounts.js)
   if (typeof loadCharacters === 'function') loadCharacters();
 }
 
