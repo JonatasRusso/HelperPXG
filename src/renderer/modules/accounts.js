@@ -4,7 +4,7 @@ let dragSrcIdx = null;
 
 function vipRemaining(account) {
   if (!account.vipDays || !account.vipAddedAt) return null;
-  const elapsed = Math.floor((Date.now() - account.vipAddedAt) / 86400000);
+  const elapsed = adjustedDay(Date.now()) - adjustedDay(account.vipAddedAt);
   return Math.max(0, account.vipDays - elapsed);
 }
 
