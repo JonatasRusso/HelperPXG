@@ -11,7 +11,7 @@ function vipRemaining(account) {
 function vipBadge(account) {
   const days = vipRemaining(account);
   if (days === null || days === 0) {
-    return `<span class="vip-badge vip-none">Sem VIP</span>`;
+    return `<span class="vip-badge vip-none">Free Acc</span>`;
   }
   const cls = days >= 10 ? 'vip-green' : days >= 3 ? 'vip-yellow' : 'vip-red';
   return `<span class="vip-badge ${cls}">${days}d</span>`;
@@ -37,7 +37,6 @@ function renderAccountsLogin() {
     <div class="account-card" onclick="runAutoLoginFor(${a.id})">
       <div class="account-card-main">
         <div class="account-card-name">${escapeHtml(a.name)}</div>
-        <div class="account-card-user">${escapeHtml(a.username)}</div>
       </div>
       ${vipBadge(a)}
     </div>
@@ -76,7 +75,17 @@ function renderAccountsConfig() {
         </div>
         <div class="panel-status" id="vip-status-${a.id}"></div>
         <div class="panel-actions">
-          <button class="btn-secondary" onclick="alert('Em breve')">+ Adicionar personagem</button>
+          <button class="btn-secondary" onclick="showCharForm(${a.id})">+ Adicionar personagem</button>
+          <div class="panel-char-form" id="char-form-${a.id}" style="display:none">
+            <input type="text"   id="char-name-${a.id}"   placeholder="Nome"          maxlength="60" />
+            <input type="text"   id="char-server-${a.id}" placeholder="Servidor"      maxlength="60" />
+            <input type="text"   id="char-clan-${a.id}"   placeholder="Clã (opcional)" maxlength="60" />
+            <input type="number" id="char-level-${a.id}"  placeholder="Level" min="1" max="9999" />
+            <div class="panel-char-btns">
+              <button class="btn-primary"   onclick="addCharacter(${a.id})">Salvar</button>
+              <button class="btn-secondary" onclick="hideCharForm(${a.id})">Cancelar</button>
+            </div>
+          </div>
           <button class="btn-danger" onclick="deleteAccount(${a.id})">Remover conta</button>
         </div>
       </div>
@@ -162,6 +171,9 @@ async function deleteAccount(id) {
   accounts = await window.api.deleteAccount(id);
   renderAccountsLogin();
   renderAccountsConfig();
+  // Refresh characters page state if the module is loaded
+  // (loadCharacters is defined in characters.js, loaded after accounts.js)
+  if (typeof loadCharacters === 'function') loadCharacters();
 }
 
 function toggleNewPass() {
@@ -190,4 +202,29 @@ async function saveVip(id) {
   accounts = await window.api.setVip(id, days);
   setStatus('vip-status-' + id, '✓ Salvo!', 'ok');
   renderAccountsLogin();
+}
+
+// ── Add character (inline form in Config accordion) ──
+function showCharForm(accountId) {
+  document.getElementById(`char-form-${accountId}`).style.display = 'block';
+}
+
+function hideCharForm(accountId) {
+  document.getElementById(`char-form-${accountId}`).style.display = 'none';
+  document.getElementById(`char-name-${accountId}`).value   = '';
+  document.getElementById(`char-server-${accountId}`).value = '';
+  document.getElementById(`char-clan-${accountId}`).value   = '';
+  document.getElementById(`char-level-${accountId}`).value  = '';
+}
+
+async function addCharacter(accountId) {
+  const name   = document.getElementById(`char-name-${accountId}`).value.trim();
+  const server = document.getElementById(`char-server-${accountId}`).value.trim();
+  const clan   = document.getElementById(`char-clan-${accountId}`).value.trim();
+  const level  = parseInt(document.getElementById(`char-level-${accountId}`).value, 10) || 1;
+  if (!name || !server) return;
+  await window.api.addCharacter({ accountId, name, server, clan, level });
+  hideCharForm(accountId);
+  // Keep characters module in sync if it has been loaded
+  if (typeof loadCharacters === 'function') loadCharacters();
 }
