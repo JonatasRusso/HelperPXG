@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="styles/components.css" />
   <link rel="stylesheet" href="styles/tasks.css" />
   <link rel="stylesheet" href="styles/accounts.css" />
+  <link rel="stylesheet" href="styles/characters.css" />
 </head>
 <body>
   <!-- Custom Titlebar -->
@@ -38,6 +39,11 @@
         <button class="nav-btn active" data-page="login" onclick="navigate('login')">
           <span class="nav-icon">🔑</span>
           <span>Login</span>
+        </button>
+        <button class="nav-btn" data-page="personagens"
+          onclick="navigate('personagens'); loadCharacters()">
+          <span class="nav-icon">🧙</span>
+          <span>Personagens</span>
         </button>
         <button class="nav-btn" data-page="tasks" onclick="navigate('tasks')">
           <span class="nav-icon">☑</span>
@@ -87,6 +93,15 @@
           </div>
         </div>
         <div id="task-list" class="task-list"></div>
+      </section>
+
+      <!-- PERSONAGENS PAGE -->
+      <section id="page-personagens" class="page">
+        <div class="page-header">
+          <h1>Personagens</h1>
+        </div>
+        <div id="char-grid" class="char-grid"></div>
+        <div id="char-edit-area"></div>
       </section>
 
       <!-- CONFIG PAGE -->
@@ -158,6 +173,7 @@
   <script src="app.js"></script>
   <script src="modules/tasks.js"></script>
   <script src="modules/accounts.js"></script>
+  <script src="modules/characters.js"></script>
   <script src="modules/config.js"></script>
   <script>
     (async function () {
