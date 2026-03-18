@@ -6,20 +6,14 @@ async function loadHouses() {
   renderHouses();
 }
 
-function houseIconHtml(house, charName, forLogin = false) {
+function houseIconHtml(house, charName) {
   const days = houseRemaining(house);
   if (days === null) return '';
   if (days <= 3) {
     const state = house.cpSeparated ? 'green' : 'red';
-    if (forLogin) {
-      return `<span class="house-login-icon ${state}" title="${escapeHtml(charName)}">🏠</span>`;
-    }
     return `<span class="house-icon house-icon-${state}" title="${escapeHtml(charName)}">🏠</span>`;
   }
   const opacity = Math.max(0.2, 1 - (days / 30));
-  if (forLogin) {
-    return `<span class="house-login-icon gray" style="opacity:${opacity}" title="${escapeHtml(charName)}">🏠</span>`;
-  }
   return `<span class="house-icon house-icon-gray" style="opacity:${opacity}" title="${escapeHtml(charName)}">🏠</span>`;
 }
 
@@ -59,7 +53,9 @@ function showAddHouseForm() {
   // Populate character select with characters that have no house
   const select = document.getElementById('house-char-select');
   const available = houseCharacters.filter(c => !c.house);
+  document.getElementById('add-house-form').style.display = 'block';
   if (!available.length) {
+    select.innerHTML = '<option value="">Nenhum personagem disponível</option>';
     setStatus('house-form-status', '✗ Todos os personagens já têm house.', 'err');
     return;
   }
@@ -69,7 +65,7 @@ function showAddHouseForm() {
   document.getElementById('house-bid-day').value = '';
   document.getElementById('house-value').value = '';
   document.getElementById('house-cp-checkbox').checked = false;
-  document.getElementById('add-house-form').style.display = 'block';
+  document.getElementById('house-form-status').textContent = '';
 }
 
 function hideAddHouseForm() {
