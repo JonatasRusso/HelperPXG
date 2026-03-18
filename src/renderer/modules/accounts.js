@@ -85,6 +85,7 @@ function renderAccountsConfig() {
               <button class="btn-primary"   onclick="addCharacter(${a.id})">Salvar</button>
               <button class="btn-secondary" onclick="hideCharForm(${a.id})">Cancelar</button>
             </div>
+            <div class="panel-status" id="char-status-${a.id}"></div>
           </div>
           <button class="btn-danger" onclick="deleteAccount(${a.id})">Remover conta</button>
         </div>
@@ -221,9 +222,12 @@ async function addCharacter(accountId) {
   const name   = document.getElementById(`char-name-${accountId}`).value.trim();
   const server = document.getElementById(`char-server-${accountId}`).value.trim();
   const clan   = document.getElementById(`char-clan-${accountId}`).value.trim();
-  const level  = parseInt(document.getElementById(`char-level-${accountId}`).value, 10) || 1;
-  if (!name || !server) return;
-  await window.api.addCharacter({ accountId, name, server, clan, level });
+  const level  = parseInt(document.getElementById(`char-level-${accountId}`).value, 10);
+  if (!name || !server) {
+    setStatus(`char-status-${accountId}`, '✗ Nome e Servidor são obrigatórios.', 'err');
+    return;
+  }
+  await window.api.addCharacter({ accountId, name, server, clan, level: level || 1 });
   hideCharForm(accountId);
   // Keep characters module in sync if it has been loaded
   if (typeof loadCharacters === 'function') loadCharacters();
