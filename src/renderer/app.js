@@ -121,3 +121,25 @@ async function pickCustomBg(pickerId) {
   picker.querySelector('.bg-add-btn').before(btn);
   selectBgIn(pickerId, btn);
 }
+
+// ─── 7:40 AM day-reset helpers ────────────────────────────────────────────────
+// A "new day" starts at 7:40 AM (server save time), not midnight.
+// Subtracting RESET_OFFSET before dividing into days shifts the boundary.
+const RESET_OFFSET = (7 * 60 + 40) * 60 * 1000; // 7h40 in ms
+
+function adjustedDay(ts) {
+  return Math.floor((ts - RESET_OFFSET) / 86400000);
+}
+
+// Returns days remaining until the next monthly BID date (resets at 7:40 AM).
+// house = { bidDay: 1-28, ... }. Returns null if no house.
+function houseRemaining(house) {
+  if (!house?.bidDay) return null;
+  // Before 7:40 AM, now.getMonth()/getFullYear() reflect the prior day — intentional.
+  const now = new Date(Date.now() - RESET_OFFSET);
+  let next = new Date(now.getFullYear(), now.getMonth(), house.bidDay);
+  if (next <= now) {
+    next = new Date(now.getFullYear(), now.getMonth() + 1, house.bidDay);
+  }
+  return Math.ceil((next - now) / 86400000);
+}

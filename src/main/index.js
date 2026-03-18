@@ -14,6 +14,7 @@ const registerLauncherHandlers = require('./handlers/launcher');
 const registerAutologinHandlers = require('./handlers/autologin');
 const registerConfigHandlers   = require('./handlers/config');
 const registerCharacterHandlers = require('./handlers/characters');
+const registerHouseHandlers = require('./handlers/houses');
 
 let mainWindow;
 
@@ -43,6 +44,7 @@ app.whenReady().then(() => {
   registerTaskHandlers();
   registerAccountHandlers();
   registerCharacterHandlers();
+  registerHouseHandlers();
   registerAutologinHandlers();
   registerConfigHandlers();
   createWindow();

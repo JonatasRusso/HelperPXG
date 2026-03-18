@@ -1,10 +1,11 @@
 // ─── Accounts ─────────────────────────────────────────────────────────────────
 let accounts = [];
 let dragSrcIdx = null;
+let loginCharacters = []; // characters cached for login page house icons
 
 function vipRemaining(account) {
   if (!account.vipDays || !account.vipAddedAt) return null;
-  const elapsed = Math.floor((Date.now() - account.vipAddedAt) / 86400000);
+  const elapsed = adjustedDay(Date.now()) - adjustedDay(account.vipAddedAt);
   return Math.max(0, account.vipDays - elapsed);
 }
 
@@ -18,9 +19,35 @@ function vipBadge(account) {
 }
 
 async function loadAccounts() {
-  accounts = await window.api.getAccounts();
+  [accounts, loginCharacters] = await Promise.all([
+    window.api.getAccounts(),
+    window.api.getCharacters(),
+  ]);
   renderAccountsLogin();
   renderAccountsConfig();
+}
+
+function houseLoginIcon(accountId) {
+  const chars = loginCharacters.filter(c => c.accountId === accountId && c.house);
+  if (!chars.length) return '';
+
+  // Pick the most urgent (lowest days remaining)
+  let urgent = chars[0];
+  let urgentDays = houseRemaining(urgent.house) ?? Infinity;
+  for (const c of chars.slice(1)) {
+    const d = houseRemaining(c.house) ?? Infinity;
+    if (d < urgentDays) { urgent = c; urgentDays = d; }
+  }
+
+  const days = urgentDays === Infinity ? null : urgentDays;
+  if (days === null) return '';
+
+  const opacity = Math.max(0.2, 1 - (days / 30));
+  if (days <= 3) {
+    const state = urgent.house.cpSeparated ? 'green' : 'red';
+    return `<span class="house-login-icon ${state}" title="${escapeHtml(urgent.name)}">🏠</span>`;
+  }
+  return `<span class="house-login-icon gray" style="opacity:${opacity}" title="${escapeHtml(urgent.name)}">🏠</span>`;
 }
 
 function renderAccountsLogin() {
@@ -38,7 +65,10 @@ function renderAccountsLogin() {
       <div class="account-card-main">
         <div class="account-card-name">${escapeHtml(a.name)}</div>
       </div>
-      ${vipBadge(a)}
+      <div class="account-card-badges">
+        ${vipBadge(a)}
+        ${houseLoginIcon(a.id)}
+      </div>
     </div>
   `).join('');
 }
@@ -172,10 +202,11 @@ async function addAccount() {
 
 async function deleteAccount(id) {
   accounts = await window.api.deleteAccount(id);
+  // Also refresh loginCharacters cache so house icons don't reference deleted account's chars
+  loginCharacters = await window.api.getCharacters();
   renderAccountsLogin();
   renderAccountsConfig();
   // Refresh characters page state if the module is loaded
-  // (loadCharacters is defined in characters.js, loaded after accounts.js)
   if (typeof loadCharacters === 'function') loadCharacters();
 }
 
