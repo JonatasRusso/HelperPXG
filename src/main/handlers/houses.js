@@ -5,7 +5,9 @@ module.exports = function registerHouseHandlers() {
 
   // Sets or updates the house on a character.
   // bidDay is clamped to 1-28 server-side to keep houseRemaining arithmetic safe.
-  ipcMain.handle('houses:set', (_, characterId, { bidDay, value, cpSeparated }) => {
+  ipcMain.handle('houses:set', (_, characterId, data) => {
+    if (!data || typeof data !== 'object') return store.get('characters');
+    const { bidDay, value, cpSeparated } = data;
     const safeBidDay = Math.min(28, Math.max(1, Number(bidDay)));
     const updated = store.get('characters').map(c =>
       c.id === characterId
