@@ -84,12 +84,10 @@
 
 /* ── Thumbnail / image button ── */
 .task-thumb {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  max-width: 32px;
-  max-height: 32px;
-  object-fit: cover;
+  height: 24px;
+  width: auto;
+  max-width: 40px;
+  object-fit: contain;
   border-radius: 4px;
   flex-shrink: 0;
   cursor: pointer;
@@ -98,8 +96,8 @@
 }
 .task-thumb:hover { border-color: var(--accent); }
 .task-img-btn {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   background: transparent;
   border: 1px dashed var(--border);

@@ -3,19 +3,27 @@ let characters = [];
 let allTasks   = [];
 
 async function loadCharacters() {
-  [characters, allTasks] = await Promise.all([
-    window.api.getCharacters(),
-    window.api.getTasks(),
-  ]);
+  // getTasks runs checkResets (may write updated taskState to store);
+  // getCharacters must run after so it reads the already-reset data.
+  allTasks   = await window.api.getTasks();
+  characters = await window.api.getCharacters();
   renderCharacters();
 }
 
+const LEVEL_COLORS = {
+  '300-': { color: '#888',     bg: 'rgba(136,136,136,0.25)' },
+  '300+': { color: '#4caf50',  bg: 'rgba(76,175,80,0.25)'   },
+  '400+': { color: '#2196f3',  bg: 'rgba(33,150,243,0.25)'  },
+  '500+': { color: '#ff9800',  bg: 'rgba(255,152,0,0.25)'   },
+  '600+': { color: '#e85d5d',  bg: 'rgba(232,93,93,0.25)'   },
+};
+
 function levelBadgeStyle(level) {
-  if (level >= 600) return '#e85d5d';
-  if (level >= 500) return '#ff9800';
-  if (level >= 400) return '#2196f3';
-  if (level >= 300) return '#4caf50';
-  return '#888';
+  return (LEVEL_COLORS[String(level)] || LEVEL_COLORS['300-']).color;
+}
+
+function levelBadgeBg(level) {
+  return (LEVEL_COLORS[String(level)] || LEVEL_COLORS['300-']).bg;
 }
 
 function renderCharacters() {
@@ -29,22 +37,27 @@ function renderCharacters() {
   }
 
   grid.innerHTML = characters.map(c => {
-    // c.image is always a base64 data URI; strip single-quotes to stay safe inside style=""
-    const bgStyle   = c.image ? `background-image:url('${c.image.replace(/'/g, '')}');` : '';
-    const placeholder = !c.image
+    const bgSrc = c.image
+      ? c.image.replace(/'/g, '')
+      : c.bg ? `../assets/Personagens/${c.bg}` : '';
+    const bgStyle = bgSrc ? `background-image:url('${bgSrc}');` : '';
+
+    const placeholder = !bgSrc
       ? `<div class="char-avatar-placeholder">${escapeHtml(c.name.charAt(0).toUpperCase())}</div>`
       : '';
 
-    const color = levelBadgeStyle(c.level);
-    const levelBadge = `<span class="char-level-badge" style="color:${color};border-color:${color}">${Number(c.level)}</span>`;
-    const clanHtml   = c.clan ? `<span class="char-clan">${escapeHtml(c.clan)}</span>` : '';
-    const serverHtml = `<span class="char-server">${escapeHtml(c.server)}</span>`;
+    const color      = levelBadgeStyle(c.level);
+    const bgColor    = levelBadgeBg(c.level);
+    const levelBadge = `<span class="char-level-badge" style="color:${color};border-color:${color};background:${bgColor}">${escapeHtml(String(c.level))}</span>`;
+    const clanIcon   = c.clan
+      ? `<img class="char-clan-icon" src="../assets/cla/${escapeHtml(c.clan)}.png" onerror="this.style.display='none'" />`
+      : '';
 
-    // Task thumbnails (up to 7)
+    // Task thumbnails — up to 20 (4 cols × 4 rows + scroll)
     const assignedTasks = c.taskIds
       .map(tid => allTasks.find(t => t.id === tid))
       .filter(Boolean)
-      .slice(0, 7);
+      .slice(0, 20);
 
     const thumbsHtml = assignedTasks.map(t => {
       const done = !!c.taskState[String(t.id)];
@@ -58,20 +71,20 @@ function renderCharacters() {
     }).join('');
 
     return `
-      <div class="char-card" style="${bgStyle}"
-           onclick="pickCharacterImage(${c.id})">
+      <div class="char-card" style="${bgStyle}">
         ${placeholder}
-        <div class="char-card-info">
-          <div class="char-name">${escapeHtml(c.name)}</div>
-          <div class="char-meta">${levelBadge}${clanHtml}${serverHtml}</div>
+        <div class="char-name-bar">
+          <span class="char-name">${escapeHtml(c.name)}</span>
+        </div>
+        <div class="char-bottom-bar">
+          <div class="char-bottom-left">${clanIcon}${levelBadge}</div>
+          <span class="char-server">${escapeHtml(c.server)}</span>
         </div>
         <div class="char-card-hover">
-          <div class="char-task-row">
-            ${thumbsHtml}
-            <button class="char-edit-btn"
-              onclick="event.stopPropagation(); openCharEdit(${c.id})"
-              title="Editar">✏</button>
-          </div>
+          <div class="char-task-col">${thumbsHtml}</div>
+          <button class="char-edit-btn"
+            onclick="event.stopPropagation(); openCharEdit(${c.id})"
+            title="Editar"><span>✏</span></button>
         </div>
       </div>`;
   }).join('');
@@ -82,10 +95,6 @@ async function charToggleTask(charId, taskId) {
   renderCharacters();
 }
 
-async function pickCharacterImage(id) {
-  const updated = await window.api.setCharacterImage(id);
-  if (updated) { characters = updated; renderCharacters(); }
-}
 
 function openCharEdit(id) {
   const c = characters.find(ch => ch.id === id);
@@ -106,41 +115,75 @@ function openCharEdit(id) {
       }).join('')
     : '<div style="font-size:13px;color:var(--text-muted)">Nenhuma task criada.</div>';
 
+  const currentLevel = String(c.level || '300-');
+  const currentBg    = c.bg    || 'personagem-bg-01.png';
+  const currentImage = c.image || null;
+
   area.innerHTML = `
     <div class="char-edit-panel">
-      <div class="char-edit-header">Editando: <strong>${escapeHtml(c.name)}</strong></div>
+      <button class="char-close-btn" onclick="closeCharEdit()" title="Fechar">✕</button>
 
-      <div class="char-edit-row">
-        <input type="number" id="char-level-${id}" value="${c.level}" min="1" max="9999" />
-        <input type="text"   id="char-clan-${id}"  value="${escapeHtml(c.clan || '')}"
-          placeholder="Clã (opcional)" maxlength="60" />
-        <button class="btn-primary" onclick="charSaveInfo(${id})">Salvar</button>
+      <div class="char-edit-header">
+        <span id="edit-name-display-${id}" class="char-edit-name">${escapeHtml(c.name)}</span>
+        <button class="char-rename-btn" onclick="toggleNameEdit(${id})" title="Renomear"><span>✏</span></button>
+        <input type="text" id="edit-name-${id}" class="char-name-input"
+          value="${escapeHtml(c.name)}" maxlength="60" style="display:none" />
       </div>
 
-      <label class="field-label">Tasks</label>
-      <div class="char-tasklist">${taskChecklist}</div>
-      ${allTasks.length ? `<button class="btn-secondary" style="margin-bottom:12px" onclick="charSetTasks(${id})">Salvar tasks</button>` : ''}
+      <label class="field-label">Level</label>
+      ${levelTagsHtml(`edit-level-tags-${id}`, currentLevel)}
 
-      <button class="btn-danger" onclick="charDelete(${id})">Excluir personagem</button>
+      <label class="field-label" style="margin-top:8px">Clã</label>
+      ${clanDropdownHtml(`edit-clan-${id}`, c.clan || '')}
+
+      <label class="field-label" style="margin-top:8px">Background</label>
+      ${bgPickerHtml(`edit-bg-${id}`, currentBg, currentImage)}
+
+      <label class="field-label" style="margin-top:8px">Tasks</label>
+      <div class="char-tasklist">${taskChecklist}</div>
+
+      <div class="char-edit-actions">
+        <button class="btn-primary" onclick="charSaveAll(${id})">Salvar</button>
+        <button class="btn-danger"  onclick="showConfirmModal('Você quer mesmo excluir?', () => charDelete(${id}))">Excluir</button>
+      </div>
     </div>`;
 }
 
-async function charSetTasks(charId) {
-  const checkboxes = document.querySelectorAll('#char-edit-area input[type="checkbox"]');
-  const taskIds    = Array.from(checkboxes).filter(cb => cb.checked).map(cb => Number(cb.value));
-  characters = await window.api.setCharacterTasks({ id: charId, taskIds });
-  allTasks   = await window.api.getTasks(); // refresh in case tasks changed
-  renderCharacters();
-  openCharEdit(charId);
+function toggleNameEdit(id) {
+  const display = document.getElementById(`edit-name-display-${id}`);
+  const input   = document.getElementById(`edit-name-${id}`);
+  const opening = input.style.display === 'none';
+  display.style.display = opening ? 'none' : '';
+  input.style.display   = opening ? ''     : 'none';
+  if (opening) input.focus();
 }
 
-async function charSaveInfo(id) {
-  const level = parseInt(document.getElementById(`char-level-${id}`).value, 10);
-  const clan  = document.getElementById(`char-clan-${id}`).value.trim();
-  if (isNaN(level) || level < 1) return;
-  characters = await window.api.setCharacterInfo({ id, level, clan });
+function closeCharEdit() {
+  document.getElementById('char-edit-area').innerHTML = '';
+}
+
+async function charSaveAll(id) {
+  const nameInput = document.getElementById(`edit-name-${id}`);
+  const name = nameInput.style.display !== 'none' ? nameInput.value.trim() : null;
+
+  const activeTag = document.querySelector(`#edit-level-tags-${id} .level-tag--active`);
+  const level = activeTag ? activeTag.textContent.trim() : '300-';
+
+  const clan = document.getElementById(`edit-clan-${id}`).value;
+
+  const activeBg    = document.querySelector(`#edit-bg-${id} .bg-thumb--active`);
+  const customImage = activeBg?.dataset.image || null;
+  const bg          = !customImage && activeBg ? activeBg.dataset.bg : null;
+  const image       = customImage;
+
+  const checkboxes = document.querySelectorAll('#char-edit-area input[type="checkbox"]');
+  const taskIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => Number(cb.value));
+  console.log('[charSaveAll] checkboxes total:', checkboxes.length, '| checked taskIds:', JSON.stringify(taskIds));
+
+  allTasks   = await window.api.getTasks();
+  characters = await window.api.setCharacterInfo({ id, level, clan, bg, image, name, taskIds });
   renderCharacters();
-  openCharEdit(id);
+  closeCharEdit();
 }
 
 async function charDelete(id) {

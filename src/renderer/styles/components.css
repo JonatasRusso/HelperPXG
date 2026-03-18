@@ -211,3 +211,53 @@ input[readonly] {
   font-size: 36px;
   margin-bottom: 12px;
 }
+
+/* ── Confirm modal ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  min-width: 260px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideIn 0.15s ease;
+}
+.modal-msg {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+  text-align: center;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.btn-confirm-cancel {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid rgba(232, 184, 75, 0.5);
+  border-radius: var(--radius);
+  color: var(--accent);
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-confirm-cancel:hover {
+  background: rgba(232, 184, 75, 0.1);
+  border-color: var(--accent);
+}

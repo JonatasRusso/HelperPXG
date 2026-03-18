@@ -45,7 +45,7 @@
           <span class="nav-icon">🧙</span>
           <span>Personagens</span>
         </button>
-        <button class="nav-btn" data-page="tasks" onclick="navigate('tasks')">
+        <button class="nav-btn" data-page="tasks" onclick="navigate('tasks'); loadTasks()">
           <span class="nav-icon">☑</span>
           <span>Tasks</span>
         </button>
@@ -170,6 +170,17 @@
     </main>
   </div>
 
+  <!-- Confirm modal -->
+  <div id="confirm-modal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)hideConfirmModal()">
+    <div class="modal-box">
+      <p id="confirm-modal-msg" class="modal-msg"></p>
+      <div class="modal-actions">
+        <button id="confirm-modal-ok"     class="btn-danger">Sim</button>
+        <button id="confirm-modal-cancel" class="btn-confirm-cancel" onclick="hideConfirmModal()">Sair</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script src="modules/tasks.js"></script>
   <script src="modules/accounts.js"></script>
@@ -180,6 +191,8 @@
       await loadTasks();
       await loadAccounts();
       await loadConfig();
+      // Check for task resets every minute while the app is open
+      setInterval(loadTasks, 15 * 60 * 1000);
     })();
   </script>
 </body>

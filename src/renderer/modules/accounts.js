@@ -76,18 +76,20 @@ function renderAccountsConfig() {
         <div class="panel-status" id="vip-status-${a.id}"></div>
         <div class="panel-actions">
           <button class="btn-secondary" onclick="showCharForm(${a.id})">+ Adicionar personagem</button>
-          <div class="panel-char-form" id="char-form-${a.id}" style="display:none">
-            <input type="text"   id="char-name-${a.id}"   placeholder="Nome"          maxlength="60" />
-            <input type="text"   id="char-server-${a.id}" placeholder="Servidor"      maxlength="60" />
-            <input type="text"   id="char-clan-${a.id}"   placeholder="Clã (opcional)" maxlength="60" />
-            <input type="number" id="char-level-${a.id}"  placeholder="Level" min="1" max="9999" />
-            <div class="panel-char-btns">
-              <button class="btn-primary"   onclick="addCharacter(${a.id})">Salvar</button>
-              <button class="btn-secondary" onclick="hideCharForm(${a.id})">Cancelar</button>
-            </div>
-            <div class="panel-status" id="char-status-${a.id}"></div>
-          </div>
           <button class="btn-danger" onclick="deleteAccount(${a.id})">Remover conta</button>
+        </div>
+        <div class="panel-char-form" id="char-form-${a.id}" style="display:none">
+          <input type="text" id="char-name-${a.id}"   placeholder="Nome"     maxlength="60" />
+          <input type="text" id="char-server-${a.id}" placeholder="Servidor" maxlength="60" />
+          ${clanDropdownHtml(`char-clan-${a.id}`, '')}
+          ${levelTagsHtml(`level-tags-${a.id}`, '300-')}
+          <span class="panel-label">Background</span>
+          ${bgPickerHtml(`bg-picker-add-${a.id}`, 'personagem-bg-01.png')}
+          <div class="panel-char-btns">
+            <button class="btn-primary"   onclick="addCharacter(${a.id})">Salvar</button>
+            <button class="btn-secondary" onclick="hideCharForm(${a.id})">Cancelar</button>
+          </div>
+          <div class="panel-status" id="char-status-${a.id}"></div>
         </div>
       </div>
     </div>
@@ -215,19 +217,25 @@ function hideCharForm(accountId) {
   document.getElementById(`char-name-${accountId}`).value   = '';
   document.getElementById(`char-server-${accountId}`).value = '';
   document.getElementById(`char-clan-${accountId}`).value   = '';
-  document.getElementById(`char-level-${accountId}`).value  = '';
+  selectLevelTagIn(`level-tags-${accountId}`, document.querySelector(`#level-tags-${accountId} .level-tag`));
+  selectBgIn(`bg-picker-add-${accountId}`, document.querySelector(`#bg-picker-add-${accountId} .bg-thumb`));
 }
 
 async function addCharacter(accountId) {
   const name   = document.getElementById(`char-name-${accountId}`).value.trim();
   const server = document.getElementById(`char-server-${accountId}`).value.trim();
   const clan   = document.getElementById(`char-clan-${accountId}`).value.trim();
-  const level  = parseInt(document.getElementById(`char-level-${accountId}`).value, 10);
+  const activeTag = document.querySelector(`#level-tags-${accountId} .level-tag--active`);
+  const level  = activeTag ? activeTag.textContent.trim() : '300-';
+  const activeBg    = document.querySelector(`#bg-picker-add-${accountId} .bg-thumb--active`);
+  const customImage = activeBg?.dataset.image || null;
+  const bg          = !customImage && activeBg ? activeBg.dataset.bg : 'personagem-bg-01.png';
+  const image       = customImage;
   if (!name || !server) {
     setStatus(`char-status-${accountId}`, '✗ Nome e Servidor são obrigatórios.', 'err');
     return;
   }
-  await window.api.addCharacter({ accountId, name, server, clan, level: level || 1 });
+  await window.api.addCharacter({ accountId, name, server, clan, level, bg, image });
   hideCharForm(accountId);
   // Keep characters module in sync if it has been loaded
   if (typeof loadCharacters === 'function') loadCharacters();

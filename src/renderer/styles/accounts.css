@@ -209,6 +209,34 @@
   border-color: #e85d5d;
 }
 
+
+.level-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.level-tag {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.level-tag:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.level-tag--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(232, 184, 75, 0.12);
+}
+
 /* ── VIP badge ── */
 .vip-badge {
   font-family: 'Rajdhani', sans-serif;

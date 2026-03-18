@@ -41,7 +41,7 @@ contextBridge.exposeInMainWorld('api', {
   getCharacters:       ()      => ipcRenderer.invoke('characters:get'),
   addCharacter:        (data)  => ipcRenderer.invoke('characters:add', data),
   deleteCharacter:     (id)    => ipcRenderer.invoke('characters:delete', id),
-  setCharacterImage:   (id)    => ipcRenderer.invoke('characters:setImage', id),
+  pickImageData:       ()      => ipcRenderer.invoke('characters:pickImageData'),
   setCharacterTasks:   (data)  => ipcRenderer.invoke('characters:setTasks', data),
   toggleCharacterTask: (data)  => ipcRenderer.invoke('characters:toggleTask', data),
   setCharacterInfo:    (data)  => ipcRenderer.invoke('characters:setInfo', data),

@@ -8,15 +8,17 @@ module.exports = function registerCharacterHandlers() {
   ipcMain.handle('characters:get', () => store.get('characters'));
 
   // Adds a new character linked to an account
-  ipcMain.handle('characters:add', (_, { accountId, name, server, clan, level }) => {
+  ipcMain.handle('characters:add', (_, { accountId, name, server, clan, level, bg, image }) => {
     const chars = store.get('characters');
     const updated = [...chars, {
       id:        Date.now(),
       accountId,
       name,
       server,
-      clan:      clan || '',
-      level:     Number(level) || 1,
+      clan:      clan  || '',
+      level:     level || '300-',
+      bg:        bg    || 'personagem-bg-01.png',
+      image:     image || null,
       taskIds:   [],
       taskState: {},
     }];
@@ -31,20 +33,16 @@ module.exports = function registerCharacterHandlers() {
     return updated;
   });
 
-  // Opens file dialog and saves base64 image to character
-  ipcMain.handle('characters:setImage', async (_, id) => {
+  // Opens file dialog and returns base64 data URI without saving
+  ipcMain.handle('characters:pickImageData', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [{ name: 'Imagens', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] }],
     });
     if (canceled || !filePaths.length) return null;
-    const ext    = path.extname(filePaths[0]).slice(1).toLowerCase();
-    const mime   = ext === 'jpg' ? 'jpeg' : ext;
-    const dataUrl = `data:image/${mime};base64,${fs.readFileSync(filePaths[0]).toString('base64')}`;
-    const chars  = store.get('characters');
-    const updated = chars.map(c => c.id === id ? { ...c, image: dataUrl } : c);
-    store.set('characters', updated);
-    return updated;
+    const ext  = path.extname(filePaths[0]).slice(1).toLowerCase();
+    const mime = ext === 'jpg' ? 'jpeg' : ext;
+    return `data:image/${mime};base64,${fs.readFileSync(filePaths[0]).toString('base64')}`;
   });
 
   // Replaces the full taskIds list; prunes removed ids from taskState
@@ -74,13 +72,29 @@ module.exports = function registerCharacterHandlers() {
     return updated;
   });
 
-  // Updates level and clan together (edit panel "Salvar").
-  // Note: spec lists characters:setLevel but clan was added after the spec was written;
-  // setInfo consolidates both into one handler.
-  ipcMain.handle('characters:setInfo', (_, { id, level, clan }) => {
-    const updated = store.get('characters').map(c =>
-      c.id === id ? { ...c, level: Number(level) || 1, clan: clan || '' } : c
-    );
+  // Updates character info (level, clan, bg, image, name, taskIds)
+  ipcMain.handle('characters:setInfo', (_, { id, level, clan, bg, image, name, taskIds }) => {
+    console.log('[setInfo] taskIds received:', JSON.stringify(taskIds));
+    const updated = store.get('characters').map(c => {
+      if (c.id !== id) return c;
+      console.log('[setInfo] c.taskIds before patch:', JSON.stringify(c.taskIds));
+      const patch = {
+        level: level || '300-',
+        clan:  clan  || '',
+        bg:    bg    || c.bg || 'personagem-bg-01.png',
+        image: image || null,
+      };
+      if (name && name.trim()) patch.name = name.trim();
+      if (Array.isArray(taskIds)) {
+        const newIds   = taskIds.map(Number);
+        const newState = {};
+        newIds.forEach(tid => { newState[String(tid)] = c.taskState[String(tid)] || false; });
+        patch.taskIds   = newIds;
+        patch.taskState = newState;
+      }
+      console.log('[setInfo] patch.taskIds after:', JSON.stringify(patch.taskIds));
+      return { ...c, ...patch };
+    });
     store.set('characters', updated);
     return updated;
   });
