@@ -1,0 +1,156 @@
+/* ── Add house form ── */
+.add-house-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+}
+.add-house-form select,
+.add-house-form input[type="number"] {
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+.add-house-form select:focus,
+.add-house-form input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.house-form-row {
+  display: flex;
+  gap: 8px;
+}
+.house-form-row input {
+  flex: 1;
+}
+.house-cp-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.house-form-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── House list ── */
+.house-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  position: relative;
+  transition: border-color 0.15s;
+}
+.house-list-row:hover {
+  border-color: var(--accent);
+}
+.house-list-row:hover .house-delete-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── House icon ── */
+.house-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: opacity 0.2s;
+}
+.house-icon-gray    { filter: grayscale(1); }
+.house-icon-red     { background: rgba(232, 93, 93, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(232,93,93,0.4); }
+.house-icon-green   { background: rgba(76, 175, 80, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(76,175,80,0.4); }
+
+/* ── Row content ── */
+.house-char-name {
+  flex: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.house-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 70px;
+  text-align: right;
+}
+.house-days {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 38px;
+  text-align: right;
+}
+.house-days-ok  { color: var(--text-muted); }
+.house-days-red { color: #e85d5d; }
+
+/* ── CP checkbox ── */
+.house-cp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.house-cp-toggle input {
+  cursor: pointer;
+}
+
+/* ── Delete button (visible on row hover) ── */
+.house-delete-btn {
+  opacity: 0;
+  pointer-events: none;
+  background: transparent;
+  border: none;
+  color: #e85d5d;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  border-radius: var(--radius);
+  transition: opacity 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.house-delete-btn:hover {
+  background: rgba(232, 93, 93, 0.1);
+}
+
+/* ── Login card house icon ── */
+.house-login-icon {
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 6px;
+  padding: 3px 5px;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.house-login-icon.gray  { filter: grayscale(1); border: 1px solid var(--border); }
+.house-login-icon.red   { background: rgba(232, 93, 93, 0.2);  border: 1px solid rgba(232,93,93,0.4); }
+.house-login-icon.green { background: rgba(76, 175, 80, 0.2);  border: 1px solid rgba(76,175,80,0.4); }
+
+/* ── Empty state ── */
+#house-list .empty-state {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
