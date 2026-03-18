@@ -223,3 +223,11 @@
 .vip-yellow { background: rgba(232, 184, 75, 0.15); color: #e8b84b; border: 1px solid rgba(232, 184, 75, 0.3); }
 .vip-red    { background: rgba(232, 93, 93, 0.15);  color: #e85d5d; border: 1px solid rgba(232, 93, 93, 0.3); }
 .vip-none   { background: transparent; color: #666; border: 1px solid #333; }
+
+/* ── Account card badge group ── */
+.account-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
