@@ -45,4 +45,9 @@ contextBridge.exposeInMainWorld('api', {
   setCharacterTasks:   (data)  => ipcRenderer.invoke('characters:setTasks', data),
   toggleCharacterTask: (data)  => ipcRenderer.invoke('characters:toggleTask', data),
   setCharacterInfo:    (data)  => ipcRenderer.invoke('characters:setInfo', data),
+
+  // Houses
+  setHouse:      (id, data) => ipcRenderer.invoke('houses:set', id, data),
+  deleteHouse:   (id)       => ipcRenderer.invoke('houses:delete', id),
+  toggleHouseCp: (id)       => ipcRenderer.invoke('houses:toggleCp', id),
 });
