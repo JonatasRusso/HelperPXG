@@ -11,6 +11,7 @@
 }
 .add-house-form select,
 .add-house-form input[type="number"] {
+  width: 100%;
   padding: 8px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
