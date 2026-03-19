@@ -54,47 +54,57 @@ function checkResets(tasks) {
   const now = Date.now();
   let changed = false;
   const resetIds = new Set();
+  const resetTasks = [];
   const updated = tasks.map(t => {
     if (t.nextResetAt && now >= t.nextResetAt) {
       changed = true;
       resetIds.add(t.id);
+      resetTasks.push(t);
       return { ...t, done: false, nextResetAt: calcNextResetAt(t.type, t.serverSave) };
     }
     return t;
   });
-  return { tasks: updated, changed, resetIds };
+  return { tasks: updated, changed, resetIds, resetTasks };
 }
 
 // ─── Handlers ────────────────────────────────────────────────────────────────
-module.exports = function registerTaskHandlers() {
+function registerTaskHandlers() {
   ipcMain.handle('tasks:get', () => {
     let tasks = store.get('tasks');
     tasks = tasks.filter(t => t.type);
-    const { tasks: reset, changed, resetIds } = checkResets(tasks);
+    const { tasks: reset, changed, resetIds, resetTasks } = checkResets(tasks);
     if (changed) {
       store.set('tasks', reset);
+      const blueResetIds = new Set(
+        resetTasks.filter(t => t.energyType === 'blue').map(t => String(t.id))
+      );
       const chars = store.get('characters');
       const updatedChars = chars.map(c => {
-        const newState = { ...c.taskState };
-        resetIds.forEach(id => {
-          if (c.taskIds.includes(id)) newState[String(id)] = false;
-        });
-        return { ...c, taskState: newState };
+        const newState     = { ...c.taskState };
+        const newRunCounts = { ...(c.runCounts || {}) };
+        resetIds.forEach(id => { if (c.taskIds.includes(id)) newState[String(id)] = false; });
+        blueResetIds.forEach(id => { delete newRunCounts[id]; });
+        return { ...c, taskState: newState, runCounts: newRunCounts };
       });
       store.set('characters', updatedChars);
     }
     return reset;
   });
 
-  ipcMain.handle('tasks:add', (_, { title, type, serverSave }) => {
+  ipcMain.handle('tasks:add', (_, { title, type, serverSave, energyType, tiers, slug }) => {
     const tasks = store.get('tasks').filter(t => t.type);
     const newTask = {
       id: Date.now(),
       title,
       type,
       serverSave: !!serverSave,
+      energyType: energyType || null,
+      tiers: Array.isArray(tiers) ? tiers : [],
+      slug: slug || null,
+      disabled: false,
       done: false,
       nextResetAt: calcNextResetAt(type, serverSave),
+      image: null,
     };
     store.set('tasks', [...tasks, newTask]);
     return newTask;
@@ -112,9 +122,19 @@ module.exports = function registerTaskHandlers() {
     // Remove deleted task from all characters
     const chars = store.get('characters');
     const updatedChars = chars.map(c => {
-      const newState = { ...c.taskState };
+      const newState     = { ...c.taskState };
+      const newRunCounts = { ...(c.runCounts || {}) };
+      const newPreferred = { ...(c.preferredTiers || {}) };
       delete newState[String(id)];
-      return { ...c, taskIds: c.taskIds.filter(tid => tid !== id), taskState: newState };
+      delete newRunCounts[String(id)];
+      delete newPreferred[String(id)];
+      return {
+        ...c,
+        taskIds: c.taskIds.filter(tid => tid !== id),
+        taskState: newState,
+        runCounts: newRunCounts,
+        preferredTiers: newPreferred,
+      };
     });
     store.set('characters', updatedChars);
     return tasks;
@@ -141,4 +161,13 @@ module.exports = function registerTaskHandlers() {
     store.set('tasks', updated);
     return updated.filter(t => t.type);
   });
-};
+
+  ipcMain.handle('tasks:setDisabled', (_, id, disabled) => {
+    const tasks = store.get('tasks').map(t => t.id === id ? { ...t, disabled } : t);
+    store.set('tasks', tasks);
+    return tasks.filter(t => t.type);
+  });
+}
+
+registerTaskHandlers.calcNextResetAt = calcNextResetAt;
+module.exports = registerTaskHandlers;

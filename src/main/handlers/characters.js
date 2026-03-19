@@ -21,6 +21,12 @@ module.exports = function registerCharacterHandlers() {
       image:     image || null,
       taskIds:   [],
       taskState: {},
+      house:          null,
+      favorite:       false,
+      blueEnergy:     null,
+      redEnergy:      null,
+      runCounts:      {},
+      preferredTiers: {},
     }];
     store.set('characters', updated);
     return updated;
@@ -73,7 +79,7 @@ module.exports = function registerCharacterHandlers() {
   });
 
   // Updates character info (level, clan, bg, image, name, taskIds)
-  ipcMain.handle('characters:setInfo', (_, { id, level, clan, bg, image, name, taskIds }) => {
+  ipcMain.handle('characters:setInfo', (_, { id, level, clan, bg, image, name, taskIds, blueEnergy, redEnergy, favorite, preferredTiers }) => {
     console.log('[setInfo] taskIds received:', JSON.stringify(taskIds));
     const updated = store.get('characters').map(c => {
       if (c.id !== id) return c;
@@ -92,6 +98,10 @@ module.exports = function registerCharacterHandlers() {
         patch.taskIds   = newIds;
         patch.taskState = newState;
       }
+      if (typeof favorite === 'boolean') patch.favorite = favorite;
+      if (blueEnergy !== undefined) patch.blueEnergy = blueEnergy ? { ...blueEnergy, lastUpdated: Date.now() } : null;
+      if (redEnergy  !== undefined) patch.redEnergy  = redEnergy  ? { ...redEnergy,  lastUpdated: Date.now() } : null;
+      if (preferredTiers !== undefined) patch.preferredTiers = preferredTiers;
       console.log('[setInfo] patch.taskIds after:', JSON.stringify(patch.taskIds));
       return { ...c, ...patch };
     });

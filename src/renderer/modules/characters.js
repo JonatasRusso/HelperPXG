@@ -60,7 +60,40 @@ function renderCharacters() {
       .slice(0, 20);
 
     const thumbsHtml = assignedTasks.map(t => {
-      const done = !!c.taskState[String(t.id)];
+      if (t.energyType === 'blue') {
+        const runCount  = (c.runCounts || {})[String(t.id)] ?? 0;
+        const blueNow   = computeEnergy(c.blueEnergy);
+        const prefIdx   = (c.preferredTiers || {})[String(t.id)];
+        const cost      = prefIdx !== undefined ? (t.tiers[prefIdx]?.energyCost ?? 0) : (t.tiers[0]?.energyCost ?? 0);
+        const canRun    = blueNow !== null && blueNow >= cost && cost > 0;
+        const bonusIcon = runCount < 2 ? '<span class="char-task-bonus">⏫</span>' : '';
+        const inner     = t.image
+          ? `<img class="char-task-thumb-img" src="${t.image}" />`
+          : `<span class="char-task-thumb-letter">${escapeHtml(t.title.charAt(0))}</span>`;
+        return `<div class="char-task-energy-wrap" title="${escapeHtml(t.title)}">
+          ${inner}${bonusIcon}
+          <button class="char-task-run-btn" ${!canRun ? 'disabled title="Energia insuficiente"' : ''}
+            onclick="event.stopPropagation(); charRunTask(${c.id}, ${t.id})">✓</button>
+        </div>`;
+      }
+
+      if (t.energyType === 'red') {
+        const done    = !!c.taskState?.[String(t.id)];
+        const redNow  = computeEnergy(c.redEnergy);
+        const cost    = t.tiers[0]?.energyCost ?? 0;
+        const canRun  = !done && redNow !== null && redNow >= cost;
+        const inner   = t.image
+          ? `<img class="char-task-thumb-img" src="${t.image}" />`
+          : `<span class="char-task-thumb-letter">${escapeHtml(t.title.charAt(0))}</span>`;
+        const check   = done ? `<span class="char-task-check">✓</span>` : '';
+        return `<button class="char-task-thumb ${done ? 'done' : ''}"
+          onclick="event.stopPropagation(); charRunRedTask(${c.id}, ${t.id})"
+          ${done ? 'disabled' : ''} ${!canRun && !done ? 'title="Energia insuficiente"' : ''}
+          title="${escapeHtml(t.title)}">${inner}${check}</button>`;
+      }
+
+      // Non-energy task — existing behaviour
+      const done  = !!c.taskState[String(t.id)];
       const inner = t.image
         ? `<img class="char-task-thumb-img" src="${t.image}" />`
         : `<span class="char-task-thumb-letter">${escapeHtml(t.title.charAt(0))}</span>`;
@@ -69,6 +102,14 @@ function renderCharacters() {
         onclick="event.stopPropagation(); charToggleTask(${c.id}, ${t.id})"
         title="${escapeHtml(t.title)}">${inner}${check}</button>`;
     }).join('');
+
+    const blueNow = computeEnergy(c.blueEnergy);
+    const redNow  = computeEnergy(c.redEnergy);
+    const energyBadge = (blueNow !== null || redNow !== null) ? `
+      <div class="char-energy-badge">
+        ${blueNow !== null ? `<span class="char-energy-blue${blueNow >= c.blueEnergy.max ? ' full' : ''}">🔵${blueNow}</span>` : ''}
+        ${redNow  !== null ? `<span class="char-energy-red${redNow   >= c.redEnergy.max  ? ' full' : ''}">🔴${redNow}</span>`  : ''}
+      </div>` : '';
 
     return `
       <div class="char-card" style="${bgStyle}">
@@ -80,6 +121,7 @@ function renderCharacters() {
           <div class="char-bottom-left">${clanIcon}${levelBadge}</div>
           <span class="char-server">${escapeHtml(c.server)}</span>
         </div>
+        ${energyBadge}
         <div class="char-card-hover">
           <div class="char-task-col">${thumbsHtml}</div>
           <button class="char-edit-btn"
@@ -95,11 +137,65 @@ async function charToggleTask(charId, taskId) {
   renderCharacters();
 }
 
+async function charRunTask(charId, taskId) {
+  const c    = characters.find(ch => ch.id === charId);
+  const task = allTasks.find(t => t.id === taskId);
+  if (!c || !task) return;
+
+  let tierIndex = (c.preferredTiers || {})[String(taskId)];
+
+  if (tierIndex === undefined) {
+    if (task.tiers.length === 1) {
+      tierIndex = 0;
+    } else {
+      tierIndex = await showTierPickerModal(task);
+      if (tierIndex === null) return;
+      const preferredTiers = { ...(c.preferredTiers || {}), [String(taskId)]: tierIndex };
+      characters = await window.api.setCharacterInfo({
+        id: charId, level: c.level, clan: c.clan, bg: c.bg, image: c.image, preferredTiers,
+      });
+    }
+  }
+
+  characters = await window.api.runTask(charId, taskId, tierIndex);
+  renderCharacters();
+  if (typeof loadAccounts === 'function') loadAccounts();
+}
+
+async function charRunRedTask(charId, taskId) {
+  const c    = characters.find(ch => ch.id === charId);
+  const task = allTasks.find(t => t.id === taskId);
+  if (!c || !task) return;
+  if (c.taskState?.[String(taskId)]) return; // already done this week
+
+  let tierIndex = (c.preferredTiers || {})[String(taskId)];
+
+  if (tierIndex === undefined) {
+    if (task.tiers.length === 1) {
+      tierIndex = 0;
+    } else {
+      tierIndex = await showTierPickerModal(task);
+      if (tierIndex === null) return;
+      const preferredTiers = { ...(c.preferredTiers || {}), [String(taskId)]: tierIndex };
+      characters = await window.api.setCharacterInfo({
+        id: charId, level: c.level, clan: c.clan, bg: c.bg, image: c.image, preferredTiers,
+      });
+    }
+  }
+
+  characters = await window.api.runRedTask(charId, taskId, tierIndex);
+  renderCharacters();
+  if (typeof loadAccounts === 'function') loadAccounts();
+}
+
 
 function openCharEdit(id) {
   const c = characters.find(ch => ch.id === id);
   if (!c) return;
   const area = document.getElementById('char-edit-area');
+
+  const blueE = c.blueEnergy || { current: 0, max: 100, regenMin: 30 };
+  const redE  = c.redEnergy  || { current: 0, max: 100, regenMin: 60 };
 
   const taskChecklist = allTasks.length
     ? allTasks.map(t => {
@@ -142,6 +238,26 @@ function openCharEdit(id) {
       <label class="field-label" style="margin-top:8px">Tasks</label>
       <div class="char-tasklist">${taskChecklist}</div>
 
+      <label class="field-label" style="margin-top:8px">Energia</label>
+      <div class="energy-edit-section">
+        <div class="energy-edit-row">
+          <span class="energy-edit-label">🔵 Azul</span>
+          <label class="energy-edit-field">Atual <input type="number" id="e-blue-cur-${id}" value="${blueE.current}" min="0" /></label>
+          <label class="energy-edit-field">Máx <input type="number" id="e-blue-max-${id}" value="${blueE.max}" min="1" /></label>
+          <label class="energy-edit-field">Regen <input type="number" id="e-blue-reg-${id}" value="${blueE.regenMin}" min="1" /> min</label>
+        </div>
+        <div class="energy-edit-row">
+          <span class="energy-edit-label">🔴 Vermelha</span>
+          <label class="energy-edit-field">Atual <input type="number" id="e-red-cur-${id}" value="${redE.current}" min="0" /></label>
+          <label class="energy-edit-field">Máx <input type="number" id="e-red-max-${id}" value="${redE.max}" min="1" /></label>
+          <label class="energy-edit-field">Regen <input type="number" id="e-red-reg-${id}" value="${redE.regenMin}" min="1" /> min</label>
+        </div>
+      </div>
+      <label class="field-label" style="margin-top:8px;display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="e-favorite-${id}" ${c.favorite ? 'checked' : ''} />
+        ⭐ Favorito na conta
+      </label>
+
       <div class="char-edit-actions">
         <button class="btn-primary" onclick="charSaveAll(${id})">Salvar</button>
         <button class="btn-danger"  onclick="showConfirmModal('Você quer mesmo excluir?', () => charDelete(${id}))">Excluir</button>
@@ -176,18 +292,62 @@ async function charSaveAll(id) {
   const bg          = !customImage && activeBg ? activeBg.dataset.bg : null;
   const image       = customImage;
 
-  const checkboxes = document.querySelectorAll('#char-edit-area input[type="checkbox"]');
+  const checkboxes = document.querySelectorAll('#char-edit-area .char-tasklist input[type="checkbox"]');
   const taskIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => Number(cb.value));
   console.log('[charSaveAll] checkboxes total:', checkboxes.length, '| checked taskIds:', JSON.stringify(taskIds));
 
+  const c = characters.find(ch => ch.id === id);
+
+  const blueCur = parseInt(document.getElementById(`e-blue-cur-${id}`)?.value, 10);
+  const blueMax = parseInt(document.getElementById(`e-blue-max-${id}`)?.value, 10);
+  const blueReg = parseInt(document.getElementById(`e-blue-reg-${id}`)?.value, 10);
+  const redCur  = parseInt(document.getElementById(`e-red-cur-${id}`)?.value, 10);
+  const redMax  = parseInt(document.getElementById(`e-red-max-${id}`)?.value, 10);
+  const redReg  = parseInt(document.getElementById(`e-red-reg-${id}`)?.value, 10);
+  const favorite = document.getElementById(`e-favorite-${id}`)?.checked ?? (c?.favorite ?? false);
+
+  const blueEnergy = !isNaN(blueCur)
+    ? { current: Math.max(0, blueCur), max: Math.max(1, blueMax || 100), regenMin: Math.max(1, blueReg || 30) }
+    : (c?.blueEnergy ?? null);
+  const redEnergy = !isNaN(redCur)
+    ? { current: Math.max(0, redCur), max: Math.max(1, redMax || 100), regenMin: Math.max(1, redReg || 60) }
+    : (c?.redEnergy ?? null);
+
   allTasks   = await window.api.getTasks();
-  characters = await window.api.setCharacterInfo({ id, level, clan, bg, image, name, taskIds });
+  characters = await window.api.setCharacterInfo({
+    id, level, clan, bg, image, name, taskIds,
+    blueEnergy, redEnergy, favorite,
+    preferredTiers: c?.preferredTiers || {},
+  });
   renderCharacters();
   closeCharEdit();
+  if (typeof loadAccounts === 'function') loadAccounts();
 }
 
 async function charDelete(id) {
   characters = await window.api.deleteCharacter(id);
   document.getElementById('char-edit-area').innerHTML = '';
   renderCharacters();
+}
+
+// ─── Tier picker modal ────────────────────────────────────────────────────────
+function showTierPickerModal(task) {
+  return new Promise(resolve => {
+    document.getElementById('tier-picker-title').textContent = task.title;
+    document.getElementById('tier-picker-list').innerHTML = task.tiers.map((tier, i) =>
+      `<button class="tier-picker-btn" onclick="resolveTierPicker(${i})">${escapeHtml(tier.name)} — ${tier.energyCost}⚡</button>`
+    ).join('');
+    window._tierPickerResolve = resolve;
+    document.getElementById('tier-picker-modal').style.display = 'flex';
+  });
+}
+
+function resolveTierPicker(idx) {
+  document.getElementById('tier-picker-modal').style.display = 'none';
+  if (window._tierPickerResolve) { window._tierPickerResolve(idx); window._tierPickerResolve = null; }
+}
+
+function cancelTierPicker() {
+  document.getElementById('tier-picker-modal').style.display = 'none';
+  if (window._tierPickerResolve) { window._tierPickerResolve(null); window._tierPickerResolve = null; }
 }

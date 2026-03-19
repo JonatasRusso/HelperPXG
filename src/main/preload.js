@@ -50,4 +50,9 @@ contextBridge.exposeInMainWorld('api', {
   setHouse:      (id, data) => ipcRenderer.invoke('houses:set', id, data),
   deleteHouse:   (id)       => ipcRenderer.invoke('houses:delete', id),
   toggleHouseCp: (id)       => ipcRenderer.invoke('houses:toggleCp', id),
+
+  // Energy
+  runTask:         (charId, taskId, tierIdx) => ipcRenderer.invoke('energy:runTask', charId, taskId, tierIdx),
+  runRedTask:      (charId, taskId, tierIdx) => ipcRenderer.invoke('energy:runRedTask', charId, taskId, tierIdx),
+  setDisabledTask: (id, disabled)            => ipcRenderer.invoke('tasks:setDisabled', id, disabled),
 });

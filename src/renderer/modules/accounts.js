@@ -50,6 +50,22 @@ function houseLoginIcon(accountId) {
   return `<span class="house-login-icon gray" style="opacity:${opacity}" title="${escapeHtml(urgent.name)}">🏠</span>`;
 }
 
+function energyLoginRows(accountId) {
+  const favChars = loginCharacters.filter(c => c.accountId === accountId && c.favorite);
+  if (!favChars.length) return '';
+  const rows = favChars.map(c => {
+    const blue = computeEnergy(c.blueEnergy);
+    const red  = computeEnergy(c.redEnergy);
+    if (blue === null && red === null) return '';
+    return `<div class="energy-login-row" title="${escapeHtml(c.name)}">
+      ${red  !== null ? `<span>🔴 ${red}/${c.redEnergy.max}</span>`   : ''}
+      ${blue !== null ? `<span>🔵 ${blue}/${c.blueEnergy.max}</span>` : ''}
+      <span class="energy-login-name">${escapeHtml(c.name)}</span>
+    </div>`;
+  }).filter(Boolean).join('');
+  return rows ? `<div class="energy-login-section">${rows}</div>` : '';
+}
+
 function renderAccountsLogin() {
   const list = document.getElementById('account-list');
   if (!accounts.length) {
@@ -64,11 +80,12 @@ function renderAccountsLogin() {
     <div class="account-card" onclick="runAutoLoginFor(${a.id})">
       <div class="account-card-main">
         <div class="account-card-name">${escapeHtml(a.name)}</div>
+        ${houseLoginIcon(a.id)}
       </div>
       <div class="account-card-badges">
         ${vipBadge(a)}
-        ${houseLoginIcon(a.id)}
       </div>
+      ${energyLoginRows(a.id)}
     </div>
   `).join('');
 }

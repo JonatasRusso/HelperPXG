@@ -1,0 +1,214 @@
+/* ── Task tab bar ── */
+.task-tab-bar {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.task-tab {
+  padding: 6px 16px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.15s, background 0.15s;
+}
+.task-tab:hover { color: var(--text); }
+.task-tab.active {
+  background: var(--surface);
+  border-color: var(--border);
+  border-bottom-color: var(--surface);
+  color: var(--accent);
+}
+.task-tab-content { display: block; }
+.task-tab-content.hidden { display: none; }
+
+/* ── Energy task row (tier chips) ── */
+.energy-char-select {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+.energy-task-row {
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+}
+.energy-task-title {
+  display: block;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.energy-task-tiers { display: flex; flex-wrap: wrap; gap: 6px; }
+.tier-chip {
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.tier-chip:hover { border-color: var(--accent); color: var(--text); }
+.tier-chip--active {
+  border-color: var(--accent);
+  background: rgba(232,184,75,0.12);
+  color: var(--accent);
+}
+
+/* ── Disable/reactivate in Todas tab ── */
+.task-show-disabled {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.task-show-disabled:hover { color: var(--text); }
+.task-disabled-section { margin-top: 8px; }
+.task-disabled-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+  opacity: 0.6;
+}
+.task-disabled-title { flex: 1; font-size: 13px; color: var(--text-muted); }
+
+/* ── Energy badge on character card ── */
+.char-energy-badge {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  padding: 0 2px;
+}
+.char-energy-blue,
+.char-energy-red {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s;
+}
+.char-energy-blue.full { box-shadow: 0 0 6px rgba(33,150,243,0.7); border-color: #2196f3; }
+.char-energy-red.full  { box-shadow: 0 0 6px rgba(232,93,93,0.7);  border-color: #e85d5d; }
+
+/* ── Blue task run button in char card hover ── */
+.char-task-energy-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.char-task-bonus {
+  position: absolute;
+  top: 0; right: 0;
+  font-size: 9px;
+  line-height: 1;
+  pointer-events: none;
+}
+.char-task-run-btn {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid var(--accent);
+  background: rgba(232,184,75,0.1);
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.char-task-run-btn:hover:not(:disabled) { background: rgba(232,184,75,0.25); }
+.char-task-run-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+/* ── Tier picker modal ── */
+.tier-picker-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.tier-picker-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+.tier-picker-btn:hover { border-color: var(--accent); background: rgba(232,184,75,0.08); }
+
+/* ── Energy section in character edit panel ── */
+.energy-edit-section { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.energy-edit-row { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+.energy-edit-label { min-width: 95px; color: var(--text-muted); font-size: 13px; }
+.energy-edit-field { display: flex; align-items: center; gap: 4px; color: var(--text-muted); font-size: 12px; }
+.energy-edit-field input[type="number"] {
+  width: 58px;
+  padding: 4px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+}
+.energy-edit-field input[type="number"]:focus { outline: none; border-color: var(--accent); }
+
+/* ── Login card energy rows ── */
+.energy-login-section {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 4px;
+  width: 100%;
+}
+.energy-login-row {
+  display: flex;
+  gap: 10px;
+  padding: 2px 0;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  transition: opacity 0.15s;
+  cursor: default;
+  align-items: center;
+}
+.energy-login-row:hover { opacity: 0.6; }
+.energy-login-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+}

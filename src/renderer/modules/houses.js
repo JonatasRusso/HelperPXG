@@ -34,8 +34,7 @@ function renderHouses() {
 
     return `
       <div class="house-list-row">
-        ${iconHtml}
-        <span class="house-char-name">${escapeHtml(c.name)}</span>
+        <span class="house-name-cell">${iconHtml}<span class="house-char-name">${escapeHtml(c.name)}</span></span>
         <span class="house-value">$${c.house.value}</span>
         <span class="house-days ${daysCls}">${daysLabel}</span>
         <label class="house-cp-toggle" title="Valor separado no CP">

@@ -15,6 +15,9 @@ const registerAutologinHandlers = require('./handlers/autologin');
 const registerConfigHandlers   = require('./handlers/config');
 const registerCharacterHandlers = require('./handlers/characters');
 const registerHouseHandlers = require('./handlers/houses');
+const registerEnergyHandlers = require('./handlers/energy');
+const { seedDefaultTasks }   = require('./defaultTasks');
+const store                  = require('./store');
 
 let mainWindow;
 
@@ -41,6 +44,8 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  seedDefaultTasks(store, registerTaskHandlers.calcNextResetAt);
+  registerEnergyHandlers();
   registerTaskHandlers();
   registerAccountHandlers();
   registerCharacterHandlers();

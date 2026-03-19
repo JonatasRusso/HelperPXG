@@ -143,3 +143,14 @@ function houseRemaining(house) {
   }
   return Math.ceil((next - now) / 86400000);
 }
+
+// ─── Energy helpers ───────────────────────────────────────────────────────────
+// Computes current energy from stored snapshot + elapsed regen time.
+// Returns null if energy not configured. Clamps to [0, max].
+function computeEnergy(stored, now = Date.now()) {
+  if (!stored) return null;
+  const { current, max, regenMin, lastUpdated } = stored;
+  if (!regenMin) return Math.min(max, Math.max(0, current));
+  const gained = Math.floor((now - lastUpdated) / (regenMin * 60000));
+  return Math.min(max, Math.max(0, current + gained));
+}

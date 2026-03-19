@@ -78,12 +78,21 @@
 .house-icon-green   { background: rgba(76, 175, 80, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(76,175,80,0.4); }
 
 /* ── Row content ── */
-.house-char-name {
+.house-name-cell {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.house-char-name {
   font-family: 'Rajdhani', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .house-value {
   font-family: 'Rajdhani', sans-serif;

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="styles/accounts.css" />
   <link rel="stylesheet" href="styles/characters.css" />
   <link rel="stylesheet" href="styles/houses.css" />
+  <link rel="stylesheet" href="styles/energy.css" />
 </head>
 <body>
   <!-- Custom Titlebar -->
@@ -59,7 +60,7 @@
           <span>Config</span>
         </button>
       </div>
-      <div class="sidebar-footer">v0.0.72</div>
+      <div class="sidebar-footer">v0.0.8</div>
     </nav>
 
     <!-- Main content -->
@@ -80,24 +81,51 @@
           <h1>Daily Tasks</h1>
           <span class="badge" id="tasks-counter">0/0</span>
         </div>
-        <div class="task-form">
-          <div class="task-input-row">
-            <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
-            <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
+        <div class="task-tab-bar">
+          <button class="task-tab active" data-tab="all"  onclick="switchTaskTab('all')">Todas</button>
+          <button class="task-tab"        data-tab="blue" onclick="switchTaskTab('blue')">🔵 Azul</button>
+          <button class="task-tab"        data-tab="red"  onclick="switchTaskTab('red')">🔴 Vermelha</button>
+        </div>
+
+        <!-- Todas tab -->
+        <div id="task-tab-all" class="task-tab-content">
+          <div class="task-form">
+            <div class="task-input-row">
+              <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
+              <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
+            </div>
+            <div class="task-options-row">
+              <select id="task-type" class="task-type-select">
+                <option value="daily">Diária</option>
+                <option value="weekly">Semanal</option>
+                <option value="monthly">Mensal</option>
+              </select>
+              <label class="task-server-save-label">
+                <input type="checkbox" id="task-server-save" />
+                Reseta no Server Save
+              </label>
+            </div>
           </div>
-          <div class="task-options-row">
-            <select id="task-type" class="task-type-select">
-              <option value="daily">Diária</option>
-              <option value="weekly">Semanal</option>
-              <option value="monthly">Mensal</option>
-            </select>
-            <label class="task-server-save-label">
-              <input type="checkbox" id="task-server-save" />
-              Reseta no Server Save
-            </label>
+          <div id="task-list" class="task-list"></div>
+          <button class="task-show-disabled" onclick="toggleDisabledSection()">Mostrar desativadas</button>
+          <div id="task-disabled-section" class="task-disabled-section" style="display:none">
+            <div id="task-disabled-list"></div>
           </div>
         </div>
-        <div id="task-list" class="task-list"></div>
+
+        <!-- Blue tab -->
+        <div id="task-tab-blue" class="task-tab-content hidden">
+          <select id="energy-char-select-blue" class="energy-char-select"
+            onchange="renderEnergyTab('blue')"></select>
+          <div id="energy-list-blue"></div>
+        </div>
+
+        <!-- Red tab -->
+        <div id="task-tab-red" class="task-tab-content hidden">
+          <select id="energy-char-select-red" class="energy-char-select"
+            onchange="renderEnergyTab('red')"></select>
+          <div id="energy-list-red"></div>
+        </div>
       </section>
 
       <!-- PERSONAGENS PAGE -->
@@ -208,6 +236,16 @@
         <button id="confirm-modal-ok"     class="btn-danger">Sim</button>
         <button id="confirm-modal-cancel" class="btn-confirm-cancel" onclick="hideConfirmModal()">Sair</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Tier picker modal -->
+  <div id="tier-picker-modal" class="modal-backdrop" style="display:none"
+    onclick="if(event.target===this)cancelTierPicker()">
+    <div class="modal-box">
+      <p id="tier-picker-title" class="modal-msg"></p>
+      <div id="tier-picker-list" class="tier-picker-list"></div>
+      <button class="btn-secondary" onclick="cancelTierPicker()">Cancelar</button>
     </div>
   </div>
 

@@ -20,8 +20,9 @@
 }
 .account-card-main {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 }
 .account-card:hover {
   border-color: var(--accent);
