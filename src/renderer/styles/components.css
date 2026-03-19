@@ -207,6 +207,60 @@ input[readonly] {
   color: var(--text-muted);
   padding: 48px 0;
 }
+
+/* ── Clan custom dropdown ── */
+.clan-dd {
+  position: relative;
+  width: 100%;
+}
+.clan-dd-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+}
+.clan-dd-btn:focus { outline: none; border-color: var(--accent); }
+.clan-dd-arrow { margin-left: auto; color: var(--text-muted); font-size: 11px; }
+.clan-dd-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.clan-dd-list {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  z-index: 200;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.clan-dd-option {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  transition: background 0.1s;
+}
+.clan-dd-option:hover { background: rgba(255,255,255,0.05); }
+.clan-dd-option.active { color: var(--accent); }
 .empty-state .empty-icon {
   font-size: 36px;
   margin-bottom: 12px;

@@ -1,4 +1,5 @@
 /* ── Task tab bar ── */
+.task-tab { display: inline-flex; align-items: center; gap: 5px; }
 .task-tab-bar {
   display: flex;
   gap: 2px;
@@ -46,6 +47,59 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 6px;
+}
+.energy-task-row-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.energy-task-row-top .energy-task-title { margin-bottom: 0; flex: 1; }
+.energy-task-row--inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.energy-task-row--inline .energy-task-title { margin-bottom: 0; flex: 1; }
+.energy-task-hidden { opacity: 0.45; }
+.energy-task-row[draggable="true"] { cursor: grab; }
+.energy-task-row[draggable="true"]:active { cursor: grabbing; }
+.energy-drag-handle {
+  color: var(--text-muted);
+  font-size: 14px;
+  flex-shrink: 0;
+  user-select: none;
+  padding: 0 2px;
+  pointer-events: none;
+}
+.energy-task-row.drag-over { border-color: var(--accent); background: rgba(232,184,75,0.06); }
+.energy-task-row.dragging  { opacity: 0.4; }
+.energy-vis-btn {
+  background: transparent;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.energy-vis-btn:hover { color: var(--text); }
+.visibility-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
+.energy-task-cost {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 .energy-task-title {
   display: block;
@@ -103,23 +157,105 @@
 
 /* ── Energy badge on character card ── */
 .char-energy-badge {
+  align-self: flex-end;
   display: flex;
-  gap: 6px;
-  font-size: 12px;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 600;
-  padding: 0 2px;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+  pointer-events: auto;
 }
 .char-energy-blue,
 .char-energy-red {
-  padding: 1px 5px;
+  padding: 2px 7px;
   border-radius: 4px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.55);
   border: 1px solid var(--border);
-  transition: box-shadow 0.2s;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: box-shadow 0.2s, border-color 0.15s;
 }
+.char-energy-blue:hover { border-color: #2196f3; }
+.char-energy-red:hover  { border-color: #e85d5d; }
 .char-energy-blue.full { box-shadow: 0 0 6px rgba(33,150,243,0.7); border-color: #2196f3; }
 .char-energy-red.full  { box-shadow: 0 0 6px rgba(232,93,93,0.7);  border-color: #e85d5d; }
+
+/* ── Energy quick dropdown ── */
+.energy-quick-dropdown {
+  position: fixed;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 220px;
+  max-height: 280px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.eqd-list {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.eqd-list::-webkit-scrollbar { display: none; }
+.eqd-header {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  background: rgba(232,184,75,0.06);
+}
+.eqd-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.eqd-row:last-child { border-bottom: none; }
+.eqd-title {
+  flex: 1;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.eqd-bonus { display: inline-flex; align-items: center; margin-right: 3px; }
+.bonus-icon { width: 11px; height: 11px; vertical-align: middle; flex-shrink: 0; }
+.eqd-cost {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.eqd-run-btn {
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--accent);
+  background: rgba(232,184,75,0.1);
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.eqd-run-btn:hover:not(:disabled) { background: rgba(232,184,75,0.25); }
+.eqd-run-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text-muted);
+}
 
 /* ── Blue task run button in char card hover ── */
 .char-task-energy-wrap {
@@ -172,9 +308,25 @@
 .tier-picker-btn:hover { border-color: var(--accent); background: rgba(232,184,75,0.08); }
 
 /* ── Energy section in character edit panel ── */
-.energy-edit-section { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.energy-edit-section { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.energy-edit-box {
+  position: relative;
+  border: 1px solid;
+  border-radius: var(--radius);
+  padding: 10px 10px 8px;
+  margin-top: 6px;
+}
+.energy-edit-box--red  { border-color: rgba(232, 93, 93, 0.5); }
+.energy-edit-box--blue { border-color: rgba(33, 150, 243, 0.5); }
+.energy-edit-box-icon {
+  position: absolute;
+  top: -9px;
+  left: 8px;
+  background: var(--surface);
+  padding: 0 3px;
+  line-height: 0;
+}
 .energy-edit-row { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
-.energy-edit-label { min-width: 95px; color: var(--text-muted); font-size: 13px; }
 .energy-edit-field { display: flex; align-items: center; gap: 4px; color: var(--text-muted); font-size: 12px; }
 .energy-edit-field input[type="number"] {
   width: 58px;
@@ -188,27 +340,68 @@
 }
 .energy-edit-field input[type="number"]:focus { outline: none; border-color: var(--accent); }
 
-/* ── Login card energy rows ── */
+/* ── Login card energy pills ── */
 .energy-login-section {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(232, 184, 75, 0.4);
   margin-top: 4px;
   padding-top: 4px;
-  width: 100%;
+  flex-basis: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
 }
-.energy-login-row {
-  display: flex;
-  gap: 10px;
-  padding: 2px 0;
-  font-size: 12px;
+.energy-char-pill {
+  display: grid;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(232, 184, 75, 0.45);
+  background: rgba(232, 184, 75, 0.06);
+  font-size: 11px;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 600;
-  transition: opacity 0.15s;
   cursor: default;
+}
+.energy-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.energy-clan-icon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.energy-char-val > span:not(.energy-sep) {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+}
+.energy-sep {
+  display: inline-block;
+  width: 1px;
+  align-self: stretch;
+  background: rgba(232, 184, 75, 0.4);
+  margin: 0 2px;
+}
+.energy-char-val,
+.energy-char-name {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.15s;
+  white-space: nowrap;
 }
-.energy-login-row:hover { opacity: 0.6; }
-.energy-login-name {
-  font-size: 11px;
+.energy-char-name {
+  opacity: 0;
+  justify-content: center;
   color: var(--text-muted);
-  margin-left: auto;
 }
+.energy-char-pill:hover .energy-char-val  { opacity: 0; }
+.energy-char-pill:hover .energy-char-name { opacity: 1; }

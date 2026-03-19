@@ -60,7 +60,7 @@
           <span>Config</span>
         </button>
       </div>
-      <div class="sidebar-footer">v0.0.8</div>
+      <div class="sidebar-footer">v0.8.3</div>
     </nav>
 
     <!-- Main content -->
@@ -78,17 +78,18 @@
       <!-- TASKS PAGE -->
       <section id="page-tasks" class="page">
         <div class="page-header">
-          <h1>Daily Tasks</h1>
+          <h1>Tasks</h1>
           <span class="badge" id="tasks-counter">0/0</span>
         </div>
         <div class="task-tab-bar">
-          <button class="task-tab active" data-tab="all"  onclick="switchTaskTab('all')">Todas</button>
-          <button class="task-tab"        data-tab="blue" onclick="switchTaskTab('blue')">🔵 Azul</button>
-          <button class="task-tab"        data-tab="red"  onclick="switchTaskTab('red')">🔴 Vermelha</button>
+          <button class="task-tab active" data-tab="all"  onclick="switchTaskTab('all')">Tasks</button>
+          <button class="task-tab" id="tab-btn-red"  data-tab="red"  onclick="switchTaskTab('red')"> Vermelha</button>
+          <button class="task-tab" id="tab-btn-blue" data-tab="blue" onclick="switchTaskTab('blue')"> Azul</button>
         </div>
 
-        <!-- Todas tab -->
+        <!-- Tasks tab -->
         <div id="task-tab-all" class="task-tab-content">
+          <select id="task-char-select" class="energy-char-select" onchange="renderTasks()"></select>
           <div class="task-form">
             <div class="task-input-row">
               <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />

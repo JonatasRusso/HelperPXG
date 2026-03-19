@@ -53,17 +53,23 @@ function houseLoginIcon(accountId) {
 function energyLoginRows(accountId) {
   const favChars = loginCharacters.filter(c => c.accountId === accountId && c.favorite);
   if (!favChars.length) return '';
-  const rows = favChars.map(c => {
+  const pills = favChars.map(c => {
     const blue = computeEnergy(c.blueEnergy);
     const red  = computeEnergy(c.redEnergy);
     if (blue === null && red === null) return '';
-    return `<div class="energy-login-row" title="${escapeHtml(c.name)}">
-      ${red  !== null ? `<span>🔴 ${red}/${c.redEnergy.max}</span>`   : ''}
-      ${blue !== null ? `<span>🔵 ${blue}/${c.blueEnergy.max}</span>` : ''}
-      <span class="energy-login-name">${escapeHtml(c.name)}</span>
+    return `<div class="energy-char-pill">
+      <div class="energy-char-val">
+        ${red  !== null ? `<span>${ICON_ENERGY_RED} ${red}/${c.redEnergy.max}</span>`   : ''}
+        ${red !== null && blue !== null ? `<span class="energy-sep"></span>` : ''}
+        ${blue !== null ? `<span>${ICON_ENERGY_BLUE} ${blue}/${c.blueEnergy.max}</span>` : ''}
+      </div>
+      <div class="energy-char-name">
+        ${c.clan ? `<img src="../assets/cla/${escapeHtml(c.clan)}.png" class="energy-clan-icon" onerror="this.style.display='none'" />` : ''}
+        ${escapeHtml(c.name)}
+      </div>
     </div>`;
   }).filter(Boolean).join('');
-  return rows ? `<div class="energy-login-section">${rows}</div>` : '';
+  return pills ? `<div class="energy-login-section">${pills}</div>` : '';
 }
 
 function renderAccountsLogin() {
@@ -264,7 +270,7 @@ function hideCharForm(accountId) {
   document.getElementById(`char-form-${accountId}`).style.display = 'none';
   document.getElementById(`char-name-${accountId}`).value   = '';
   document.getElementById(`char-server-${accountId}`).value = '';
-  document.getElementById(`char-clan-${accountId}`).value   = '';
+  selectClan(`char-clan-${accountId}`, '');
   selectLevelTagIn(`level-tags-${accountId}`, document.querySelector(`#level-tags-${accountId} .level-tag`));
   selectBgIn(`bg-picker-add-${accountId}`, document.querySelector(`#bg-picker-add-${accountId} .bg-thumb`));
 }
@@ -272,7 +278,7 @@ function hideCharForm(accountId) {
 async function addCharacter(accountId) {
   const name   = document.getElementById(`char-name-${accountId}`).value.trim();
   const server = document.getElementById(`char-server-${accountId}`).value.trim();
-  const clan   = document.getElementById(`char-clan-${accountId}`).value.trim();
+  const clan   = document.getElementById(`char-clan-${accountId}`)?.dataset.value ?? '';
   const activeTag = document.querySelector(`#level-tags-${accountId} .level-tag--active`);
   const level  = activeTag ? activeTag.textContent.trim() : '300-';
   const activeBg    = document.querySelector(`#bg-picker-add-${accountId} .bg-thumb--active`);
@@ -288,3 +294,6 @@ async function addCharacter(accountId) {
   // Keep characters module in sync if it has been loaded
   if (typeof loadCharacters === 'function') loadCharacters();
 }
+
+// Auto-refresh energy display every 60 seconds (computed client-side, no API call needed)
+setInterval(() => { if (loginCharacters.length) renderAccountsLogin(); }, 60000);

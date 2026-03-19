@@ -62,9 +62,8 @@
   from { opacity: 0; transform: translateX(-8px); }
   to   { opacity: 1; transform: none; }
 }
-.task-item.done {
-  opacity: 0.5;
-}
+.task-item.done { opacity: 0.5; }
+.task-item.task-hidden-char { opacity: 0.4; }
 
 /* ── Drag handle ── */
 .task-drag-handle {
@@ -84,9 +83,9 @@
 
 /* ── Thumbnail / image button ── */
 .task-thumb {
+  width: 24px;
   height: 24px;
-  width: auto;
-  max-width: 40px;
+  object-fit: contain;
   object-fit: contain;
   border-radius: 4px;
   flex-shrink: 0;

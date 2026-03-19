@@ -1,7 +1,13 @@
-const TIER_NAMES = ['Rookie','Bronze','Silver','Gold','Platinum','Diamond','Ultra','Hyper','Master','Grand Master'];
+const TIER_NAMES = ['Rookie','Bronze','Silver','Gold','Platinum','Diamond','Ace','Ultra','Hyper','Master','Grand Master'];
 
+// Sequential tiers starting from Rookie
 function makeTiers(costs) {
   return costs.map((c, i) => ({ name: TIER_NAMES[i], energyCost: c }));
+}
+
+// Named tiers — specify exact names (must exist in TIER_NAMES)
+function nt(pairs) {
+  return pairs.map(([name, cost]) => ({ name, energyCost: cost }));
 }
 
 const DEFAULT_TASKS = [
@@ -9,23 +15,23 @@ const DEFAULT_TASKS = [
   { slug: 'rocket-hideout',           title: 'Rocket Hideout',                       energyType: 'blue', tiers: makeTiers([100]) },
   { slug: 'operation-radio',          title: 'Operation Radio',                      energyType: 'blue', tiers: makeTiers([92]) },
   { slug: 'mewtwo-strikes-back',      title: 'Mewtwo Strikes Back',                  energyType: 'blue', tiers: makeTiers([80]) },
-  { slug: 'forest-of-illusions',      title: 'Forest of Illusions',                  energyType: 'blue', tiers: makeTiers([20, 20, 32, 48]) },
-  { slug: 'battle-tree-house',        title: 'Battle Tree House',                    energyType: 'blue', tiers: makeTiers([20, 24, 20]) },
-  { slug: 'music-challenge',          title: 'Music Challenge',                      energyType: 'blue', tiers: makeTiers([20, 12]) },
-  { slug: 'sylvesters-farfetchd',     title: "Sylvester's Ferfetch'd",               energyType: 'blue', tiers: makeTiers([4, 12, 20]) },
+  { slug: 'forest-of-illusions',      title: 'Forest of Illusions',                  energyType: 'blue', tiers: nt([['Rookie',20],['Bronze',20],['Silver',32],['Platinum',48]]) },
+  { slug: 'battle-tree-house',        title: 'Battle Tree House',                    energyType: 'blue', tiers: nt([['Rookie',20],['Silver',24],['Platinum',20]]) },
+  { slug: 'music-challenge',          title: 'Music Challenge',                      energyType: 'blue', tiers: nt([['Rookie',20],['Silver',12],['Platinum',0],['Diamond',0],['Ace',0]]) },
+  { slug: 'sylvesters-farfetchd',     title: "Sylvester's Ferfetch'd",               energyType: 'blue', tiers: nt([['Bronze',4],['Silver',12],['Platinum',20],['Ace',0],['Ultra',0]]) },
   { slug: 'ecruteak-maze',            title: 'Ecruteak Maze',                        energyType: 'blue', tiers: makeTiers([10]) },
-  { slug: 'fishing-competition',      title: 'Fishing Competition',                  energyType: 'blue', tiers: makeTiers([20, 20, 40]) },
-  { slug: 'photography-challenge',    title: 'Photography Challenge',                energyType: 'blue', tiers: makeTiers([36, 20, 20, 20, 20]) },
-  { slug: 'sewers-infestation',       title: 'Sewers Infestation',                   energyType: 'blue', tiers: makeTiers([20, 24, 28, 32]) },
-  { slug: 'slowpoke-well-showdown',   title: 'The Slowpoke Well Showdown',           energyType: 'blue', tiers: makeTiers([76, 68, 70, 70]) },
-  { slug: 'tour-de-alto-mare',        title: 'Tour de Alto Mare',                    energyType: 'blue', tiers: makeTiers([20, 25, 60, 65]) },
+  { slug: 'fishing-competition',      title: 'Fishing Competition',                  energyType: 'blue', tiers: nt([['Bronze',20],['Silver',20],['Gold',40],['Platinum',0]]) },
+  { slug: 'photography-challenge',    title: 'Photography Challenge',                energyType: 'blue', tiers: nt([['Bronze',36],['Silver',20],['Gold',20],['Platinum',20],['Diamond',20]]) },
+  { slug: 'sewers-infestation',       title: 'Sewers Infestation',                   energyType: 'blue', tiers: nt([['Bronze',20],['Silver',24],['Gold',28],['Platinum',32]]) },
+  { slug: 'slowpoke-well-showdown',   title: 'The Slowpoke Well Showdown',           energyType: 'blue', tiers: nt([['Bronze',76],['Silver',68],['Gold',70],['Diamond',70]]) },
+  { slug: 'tour-de-alto-mare',        title: 'Tour de Alto Mare',                    energyType: 'blue', tiers: nt([['Bronze',20],['Silver',25],['Gold',60],['Platinum',65]]) },
   { slug: 'combat-art',               title: 'Combat Art',                           energyType: 'blue', tiers: makeTiers([20]) },
   { slug: 'call-of-the-megas',        title: 'The Call of the Megas',                energyType: 'blue', tiers: makeTiers([40]) },
   { slug: 'cyber-world',              title: 'Cyber World',                          energyType: 'blue', tiers: makeTiers([58]) },
   { slug: 'dreams-or-nightmares',     title: 'Dreams or Nightmares?',                energyType: 'blue', tiers: makeTiers([20]) },
-  { slug: 'fishing-cruise',           title: 'Fishing Cruise',                       energyType: 'blue', tiers: makeTiers([30, 42, 50]) },
-  { slug: 'rocket-ambush',            title: 'Rocket Ambush',                        energyType: 'blue', tiers: makeTiers([32]) },
-  { slug: 'ultimate-challenge',       title: 'The Ultimate Challenge',               energyType: 'blue', tiers: makeTiers([12, 16, 20, 24]) },
+  { slug: 'fishing-cruise',           title: 'Fishing Cruise',                       energyType: 'blue', tiers: nt([['Diamond',30],['Ace',42],['Ultra',50]]) },
+  { slug: 'rocket-ambush',            title: 'Rocket Ambush',                        energyType: 'blue', tiers: nt([['Diamond',32],['Ultra',0],['Hyper',0],['Master',0],['Grand Master',0]]) },
+  { slug: 'ultimate-challenge',       title: 'The Ultimate Challenge',               energyType: 'blue', tiers: nt([['Diamond',12],['Ultra',16],['Hyper',20],['Master',24]]) },
   { slug: 'whirl-cup',                title: 'Whirl Cup',                            energyType: 'blue', tiers: makeTiers([44]) },
   { slug: 'iron-masked-marauder',     title: 'The Iron-Masked Marauder',             energyType: 'blue', tiers: makeTiers([46]) },
   // ── Red energy tasks ─────────────────────────────────────────────────────
@@ -52,10 +58,12 @@ const DEFAULT_TASKS = [
 
 function seedDefaultTasks(store, calcNextResetAt) {
   const tasks = store.get('tasks');
-  const existingSlugs = new Set(tasks.map(t => t.slug).filter(Boolean));
-  const missing = DEFAULT_TASKS.filter(t => !existingSlugs.has(t.slug));
-  if (!missing.length) return;
+  const existingBySlug = new Map(tasks.filter(t => t.slug).map(t => [t.slug, t]));
+  let changed = false;
+
+  // Add missing tasks
   const now = Date.now();
+  const missing = DEFAULT_TASKS.filter(t => !existingBySlug.has(t.slug));
   const seeded = missing.map((t, i) => ({
     ...t,
     id: now + i,
@@ -66,7 +74,21 @@ function seedDefaultTasks(store, calcNextResetAt) {
     image: null,
     nextResetAt: calcNextResetAt('weekly', true),
   }));
-  store.set('tasks', [...tasks, ...seeded]);
+  if (seeded.length) changed = true;
+
+  // Update tiers of existing tasks to fix names/structure
+  const updated = tasks.map(t => {
+    if (!t.slug) return t;
+    const def = DEFAULT_TASKS.find(d => d.slug === t.slug);
+    if (!def) return t;
+    const tiersJson    = JSON.stringify(t.tiers);
+    const defTiersJson = JSON.stringify(def.tiers);
+    if (tiersJson === defTiersJson) return t;
+    changed = true;
+    return { ...t, tiers: def.tiers };
+  });
+
+  if (changed) store.set('tasks', [...updated, ...seeded]);
 }
 
 module.exports = { DEFAULT_TASKS, seedDefaultTasks };

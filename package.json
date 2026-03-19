@@ -1,6 +1,6 @@
 {
   "name": "pxg-helper",
-  "version": "0.0.72",
+  "version": "0.8.3",
   "description": "PxG Game Helper",
   "main": "src/main/index.js",
   "scripts": {

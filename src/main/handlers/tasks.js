@@ -107,6 +107,15 @@ function registerTaskHandlers() {
       image: null,
     };
     store.set('tasks', [...tasks, newTask]);
+    // Auto-assign non-energy tasks to all characters
+    if (!newTask.energyType) {
+      const chars = store.get('characters');
+      store.set('characters', chars.map(c => ({
+        ...c,
+        taskIds:   [...(c.taskIds || []), newTask.id],
+        taskState: { ...(c.taskState || {}), [String(newTask.id)]: false },
+      })));
+    }
     return newTask;
   });
 
@@ -167,6 +176,7 @@ function registerTaskHandlers() {
     store.set('tasks', tasks);
     return tasks.filter(t => t.type);
   });
+
 }
 
 registerTaskHandlers.calcNextResetAt = calcNextResetAt;

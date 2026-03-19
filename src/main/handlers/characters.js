@@ -27,6 +27,9 @@ module.exports = function registerCharacterHandlers() {
       redEnergy:      null,
       runCounts:      {},
       preferredTiers: {},
+      hiddenMDs:      {},
+      mdOrder:        { blue: [], red: [] },
+      nwLevel:        null,
     }];
     store.set('characters', updated);
     return updated;
@@ -79,17 +82,16 @@ module.exports = function registerCharacterHandlers() {
   });
 
   // Updates character info (level, clan, bg, image, name, taskIds)
-  ipcMain.handle('characters:setInfo', (_, { id, level, clan, bg, image, name, taskIds, blueEnergy, redEnergy, favorite, preferredTiers }) => {
+  ipcMain.handle('characters:setInfo', (_, { id, level, clan, bg, image, name, taskIds, blueEnergy, redEnergy, favorite, preferredTiers, hiddenMDs, mdOrder, nwLevel }) => {
     console.log('[setInfo] taskIds received:', JSON.stringify(taskIds));
     const updated = store.get('characters').map(c => {
       if (c.id !== id) return c;
       console.log('[setInfo] c.taskIds before patch:', JSON.stringify(c.taskIds));
-      const patch = {
-        level: level || '300-',
-        clan:  clan  || '',
-        bg:    bg    || c.bg || 'personagem-bg-01.png',
-        image: image || null,
-      };
+      const patch = {};
+      if (level     !== undefined) patch.level = level || '300-';
+      if (clan      !== undefined) patch.clan  = clan  || '';
+      if (bg        !== undefined) patch.bg    = bg    || c.bg || 'personagem-bg-01.png';
+      if (image     !== undefined) patch.image = image || null;
       if (name && name.trim()) patch.name = name.trim();
       if (Array.isArray(taskIds)) {
         const newIds   = taskIds.map(Number);
@@ -102,6 +104,9 @@ module.exports = function registerCharacterHandlers() {
       if (blueEnergy !== undefined) patch.blueEnergy = blueEnergy ? { ...blueEnergy, lastUpdated: Date.now() } : null;
       if (redEnergy  !== undefined) patch.redEnergy  = redEnergy  ? { ...redEnergy,  lastUpdated: Date.now() } : null;
       if (preferredTiers !== undefined) patch.preferredTiers = preferredTiers;
+      if (hiddenMDs      !== undefined) patch.hiddenMDs      = hiddenMDs;
+      if (mdOrder        !== undefined) patch.mdOrder        = mdOrder;
+      if (nwLevel        !== undefined) patch.nwLevel        = nwLevel;
       console.log('[setInfo] patch.taskIds after:', JSON.stringify(patch.taskIds));
       return { ...c, ...patch };
     });
