@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('api', {
   deleteAccount:   (id)   => ipcRenderer.invoke('accounts:delete', id),
   reorderAccounts: (ids)  => ipcRenderer.invoke('accounts:reorder', ids),
   setVip:          (id, days) => ipcRenderer.invoke('accounts:setVip', id, days),
+  setPassword:     (id, pw)   => ipcRenderer.invoke('accounts:setPassword', id, pw),
 
   // Auto-login
   runAutoLoginFor: (id)  => ipcRenderer.invoke('autologin:runForAccount', id),
@@ -36,6 +37,7 @@ contextBridge.exposeInMainWorld('api', {
   // Config
   getDataPath:    () => ipcRenderer.invoke('config:getDataPath'),
   openDataFolder: () => ipcRenderer.invoke('config:openDataFolder'),
+  getBgFiles:     () => ipcRenderer.invoke('config:getBgFiles'),
 
   // Characters
   getCharacters:       ()      => ipcRenderer.invoke('characters:get'),
@@ -50,6 +52,9 @@ contextBridge.exposeInMainWorld('api', {
   setHouse:      (id, data) => ipcRenderer.invoke('houses:set', id, data),
   deleteHouse:   (id)       => ipcRenderer.invoke('houses:delete', id),
   toggleHouseCp: (id)       => ipcRenderer.invoke('houses:toggleCp', id),
+
+  // Events
+  onTasksReset: (cb) => ipcRenderer.on('tasks:didReset', cb),
 
   // Energy
   runTask:         (charId, taskId, tierIdx) => ipcRenderer.invoke('energy:runTask', charId, taskId, tierIdx),

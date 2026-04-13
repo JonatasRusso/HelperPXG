@@ -1,12 +1,10 @@
 const { ipcMain } = require('electron');
 const store = require('../store');
+const { withImageUrls } = require('../imageStore');
 
 module.exports = function registerHouseHandlers() {
-
-  // Sets or updates the house on a character.
-  // bidDay is clamped to 1-28 server-side to keep houseRemaining arithmetic safe.
   ipcMain.handle('houses:set', (_, characterId, data) => {
-    if (!data || typeof data !== 'object') return store.get('characters');
+    if (!data || typeof data !== 'object') return withImageUrls(store.get('characters'));
     const { bidDay, value, cpSeparated } = data;
     const safeBidDay = Math.min(28, Math.max(1, Number(bidDay)));
     const updated = store.get('characters').map(c =>
@@ -15,27 +13,24 @@ module.exports = function registerHouseHandlers() {
         : c
     );
     store.set('characters', updated);
-    return updated;
+    return withImageUrls(updated);
   });
 
-  // Removes the house from a character (sets house: null).
   ipcMain.handle('houses:delete', (_, characterId) => {
     const updated = store.get('characters').map(c =>
       c.id === characterId ? { ...c, house: null } : c
     );
     store.set('characters', updated);
-    return updated;
+    return withImageUrls(updated);
   });
 
-  // Flips the cpSeparated flag on a character's house.
-  // Silent no-op if characterId not found or character has no house.
+  // Silent no-op if character has no house.
   ipcMain.handle('houses:toggleCp', (_, characterId) => {
     const updated = store.get('characters').map(c => {
       if (c.id !== characterId || !c.house) return c;
       return { ...c, house: { ...c.house, cpSeparated: !c.house.cpSeparated } };
     });
     store.set('characters', updated);
-    return updated;
+    return withImageUrls(updated);
   });
-
 };

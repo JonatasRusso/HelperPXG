@@ -1,44 +1,65 @@
 # PxG Helper
 
-Helper para jogadores com Tasks, Launcher e Auto-Login.
+Helper desktop para jogadores de PokeXGames. Gerencia tasks diárias, personagens, contas e muito mais — tudo salvo localmente, sem servidor.
 
-## Setup
+## Download
 
-```bash
-npm install
-npm start          # rodar em dev
-npm run build      # gerar .exe instalável
-```
+Baixe o instalador na página de [Releases](../../releases/latest).
 
-## Estrutura
+---
 
-```
-src/
-  main/
-    index.js     # processo principal (Node/Electron) — IPC handlers
-    preload.js   # bridge segura main <-> renderer
-  renderer/
-    index.html   # estrutura da UI
-    style.css    # estilos
-    app.js       # lógica da UI
-```
+## Funcionalidades
 
-## Features
+### Tasks Diárias
+- Lista de tasks com reset diário automático (baseado no server save)
+- Marcar como feita/não feita, adicionar imagem personalizada por task
+- Reordenação por drag-and-drop
+- Tasks desabilitáveis por personagem
 
-- **Tasks** — adicionar, marcar como feita, deletar. Persistido em AppData.
-- **Launcher** — selecionar .exe e abrir o jogo.
-- **Auto-Login** — digita user → Tab → senha → Enter. Delay configurável.
-  - Senha armazenada criptografada via `safeStorage` do Electron.
+### Personagens
+- Cadastro com clã, level, imagem e background personalizados
+- Atribuição individual de tasks por personagem
+- Rastreamento de energia azul e vermelha com tiers e contadores de run
+- Favoritar personagens
 
-## Adicionar novas features
+### Login / Auto-Login
+- Cadastro de múltiplas contas
+- Auto-login: foca a janela do jogo e digita usuário + senha automaticamente via Win32
+- Credenciais armazenadas criptografadas (DPAPI do Windows)
+- Badge de VIP com countdown de dias restantes por conta
 
-Cada feature nova segue o padrão:
-1. Handler `ipcMain.handle('feature:action')` em `main/index.js`
-2. Expose via `contextBridge` em `preload.js`
-3. Chamada `window.api.action()` no renderer
+### Houses
+- Rastreamento de bid de houses com countdown até o próximo server save
+- Marcação de CP separado
 
-## Dependências principais
+### Configurações
+- Caminho do executável do jogo com botão de launch
+- Delay configurável antes do auto-login
 
-- `electron-store` — persistência local
-- `@nut-tree/nut-js` — simulação de teclado (auto-login)
-- `electron safeStorage` — criptografia de credenciais
+---
+
+## Instalação
+
+1. Baixe o arquivo `PxG Helper Setup 1.0.0.exe` em [Releases](../../releases/latest)
+2. Execute o instalador
+3. Abra o PxG Helper
+
+> Requer Windows 10 ou superior.
+
+---
+
+## Segurança
+
+Senhas nunca são exibidas após salvas. A criptografia usa `safeStorage` do Electron (DPAPI do Windows) — os dados só podem ser descriptografados na mesma máquina e usuário Windows onde foram salvos.
+
+### Verificação de malware
+
+O instalador de cada release é verificado pelo VirusTotal antes da publicação. O link com o resultado completo está disponível na descrição de cada release.
+
+O código-fonte está público neste repositório para quem quiser auditar.
+
+---
+
+## Licença
+
+[CC BY-NC-ND 4.0](LICENSE) — Você pode visualizar e compartilhar, mas **não pode modificar nem redistribuir** versões alteradas do programa.

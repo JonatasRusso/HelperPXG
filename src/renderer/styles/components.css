@@ -86,9 +86,17 @@ input[readonly] {
   background: rgba(232, 184, 75, 0.25);
   border-color: var(--accent);
 }
+.launch-login-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 6px;
+}
 .btn-launch-login {
-  flex: 1;
-  padding: 12px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
   background: rgba(74, 222, 128, 0.08);
   border: 1px solid rgba(74, 222, 128, 0.3);
   color: var(--success);
@@ -96,9 +104,11 @@ input[readonly] {
   cursor: pointer;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 0.5px;
   transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-launch-login:hover {
   background: rgba(74, 222, 128, 0.15);
@@ -154,9 +164,19 @@ input[readonly] {
 .pass-row {
   display: flex;
   gap: 8px;
+  align-items: stretch;
 }
 .pass-row input {
   flex: 1;
+}
+.pass-row .btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  align-self: stretch;
+  padding: 0;
+  flex-shrink: 0;
 }
 .cred-actions {
   display: flex;

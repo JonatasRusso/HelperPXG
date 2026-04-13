@@ -1,11 +1,10 @@
-// ─── Tasks ────────────────────────────────────────────────────────────────────
 let tasks = [];
 let taskDragSrcIdx = null;
-let energyCharacters = []; // loaded on demand when switching to energy tab
+let energyCharacters = [];
 let disabledVisible = false;
 
 async function loadTasks() {
-  tasks = await window.api.getTasks();
+  tasks            = await window.api.getTasks();
   energyCharacters = await window.api.getCharacters();
   populateTaskCharSelect();
   const activeTab = document.querySelector('.task-tab.active')?.dataset.tab || 'all';
@@ -21,8 +20,6 @@ function populateTaskCharSelect() {
   ).join('');
 }
 
-// ── "Todas" tab ──────────────────────────────────────────────────────────────
-
 function taskTypeBadge(type) {
   const map = { daily: ['D', 'badge-daily'], weekly: ['S', 'badge-weekly'], monthly: ['M', 'badge-monthly'] };
   const [label, cls] = map[type] || ['?', ''];
@@ -31,10 +28,7 @@ function taskTypeBadge(type) {
 
 function renderTasks() {
   const nonEnergy = tasks.filter(t => !t.energyType && !t.disabled);
-  const list    = document.getElementById('task-list');
-  const counter = document.getElementById('tasks-counter');
-  const done    = nonEnergy.filter(t => t.done).length;
-  counter.textContent = `${done}/${nonEnergy.length}`;
+  const list      = document.getElementById('task-list');
 
   const charId = Number(document.getElementById('task-char-select')?.value);
   const c      = energyCharacters.find(ch => ch.id === charId);
@@ -55,7 +49,7 @@ function renderTasks() {
            </button>`
         : '';
       return `
-        <div class="task-item ${t.done ? 'done' : ''}${isHidden ? ' task-hidden-char' : ''}" id="task-${t.id}"
+        <div class="task-item${isHidden ? ' task-hidden-char' : ''}" id="task-${t.id}"
           draggable="true"
           ondragstart="onTaskDragStart(event, ${idx})"
           ondragover="onTaskDragOver(event, ${idx})"
@@ -68,11 +62,9 @@ function renderTasks() {
             ? `<img class="task-thumb" src="${t.image}" onclick="pickTaskImage(${t.id})" title="Clique para trocar imagem" />`
             : `<button class="task-img-btn" onclick="pickTaskImage(${t.id})" title="Adicionar imagem">＋🖼</button>`
           }
-          <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''}
-            onchange="toggleTask(${t.id})" />
           <span class="task-title">${escapeHtml(t.title)}</span>
           ${taskTypeBadge(t.type)}
-          ${t.serverSave ? '<span class="task-ss-icon" title="Reseta no Server Save">⏰</span>' : ''}
+          ${t.serverSave ? '<span title="Reseta no Server Save"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="task-ss-icon"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg></span>' : ''}
           ${deleteBtn}
         </div>`;
     }).join('');
@@ -99,7 +91,7 @@ function renderDisabledList() {
 function toggleDisabledSection() {
   disabledVisible = !disabledVisible;
   const section = document.getElementById('task-disabled-section');
-  const btn = document.querySelector('.task-show-disabled');
+  const btn     = document.querySelector('.task-show-disabled');
   section.style.display = disabledVisible ? 'block' : 'none';
   btn.textContent = disabledVisible ? 'Ocultar desativadas' : 'Mostrar desativadas';
   if (disabledVisible) renderDisabledList();
@@ -110,8 +102,6 @@ async function setTaskDisabled(id, disabled) {
   renderTasks();
   if (disabledVisible) renderDisabledList();
 }
-
-// ── Energy tabs ───────────────────────────────────────────────────────────────
 
 async function switchTaskTab(tab) {
   document.querySelectorAll('.task-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -126,7 +116,7 @@ async function switchTaskTab(tab) {
 }
 
 function populateEnergyCharSelect(type) {
-  const select = document.getElementById(`energy-char-select-${type}`);
+  const select  = document.getElementById(`energy-char-select-${type}`);
   const current = select.value;
   select.innerHTML = energyCharacters.map(c =>
     `<option value="${c.id}" ${String(c.id) === current ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
@@ -134,10 +124,10 @@ function populateEnergyCharSelect(type) {
 }
 
 function renderEnergyTab(type) {
-  const select = document.getElementById(`energy-char-select-${type}`);
-  const list   = document.getElementById(`energy-list-${type}`);
-  const charId = Number(select.value);
-  const c      = energyCharacters.find(ch => ch.id === charId);
+  const select      = document.getElementById(`energy-char-select-${type}`);
+  const list        = document.getElementById(`energy-list-${type}`);
+  const charId      = Number(select.value);
+  const c           = energyCharacters.find(ch => ch.id === charId);
   const energyTasks = tasks.filter(t => t.energyType === type && !t.disabled);
 
   if (!c) {
@@ -149,9 +139,9 @@ function renderEnergyTab(type) {
     return;
   }
 
-  const order    = (c.mdOrder || {})[type] || [];
+  const order     = (c.mdOrder || {})[type] || [];
   const hiddenMDs = c.hiddenMDs || {};
-  const sorted = [...energyTasks].sort((a, b) => {
+  const sorted    = [...energyTasks].sort((a, b) => {
     const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
     if (ai === -1 && bi === -1) return 0;
     if (ai === -1) return 1;
@@ -160,9 +150,9 @@ function renderEnergyTab(type) {
   });
 
   list.innerHTML = sorted.map((t, idx) => {
-    const isHidden = !!hiddenMDs[String(t.id)];
-    const hiddenClass = isHidden ? ' energy-task-hidden' : '';
-    const visBtn = `<button class="energy-vis-btn" title="${isHidden ? 'Mostrar' : 'Esconder'}"
+    const isHidden  = !!hiddenMDs[String(t.id)];
+    const hiddenCls = isHidden ? ' energy-task-hidden' : '';
+    const visBtn    = `<button class="energy-vis-btn" title="${isHidden ? 'Mostrar' : 'Esconder'}"
       onclick="toggleTaskHidden(${c.id}, ${t.id}, ${isHidden})">${isHidden ? ICON_HIDE : ICON_SHOW}</button>`;
 
     const dragAttrs = `draggable="true"
@@ -176,7 +166,7 @@ function renderEnergyTab(type) {
       const cost = t.tiers[0]?.energyCost ?? 0;
       const icon = type === 'red' ? ICON_ENERGY_RED : ICON_ENERGY_BLUE;
       return `
-        <div class="energy-task-row energy-task-row--inline${hiddenClass}" data-id="${t.id}" ${dragAttrs}>
+        <div class="energy-task-row energy-task-row--inline${hiddenCls}" data-id="${t.id}" ${dragAttrs}>
           <span class="energy-drag-handle">⠿</span>${visBtn}
           <span class="energy-task-title">${escapeHtml(t.title)}</span>
           <span class="energy-task-cost">${icon} ${cost}</span>
@@ -188,7 +178,7 @@ function renderEnergyTab(type) {
         onclick="setPreferredTier(${c.id}, ${t.id}, ${i})">${escapeHtml(tier.name)} ${ICON_ENERGY_BLUE} ${tier.energyCost}</button>`
     ).join('');
     return `
-      <div class="energy-task-row${hiddenClass}" data-id="${t.id}" ${dragAttrs}>
+      <div class="energy-task-row${hiddenCls}" data-id="${t.id}" ${dragAttrs}>
         <div class="energy-task-row-top">
           <span class="energy-drag-handle">⠿</span>${visBtn}
           <span class="energy-task-title">${escapeHtml(t.title)}</span>
@@ -210,22 +200,20 @@ async function setPreferredTier(charId, taskId, tierIndex) {
   if (activeTab === 'blue' || activeTab === 'red') renderEnergyTab(activeTab);
 }
 
-// ── Regular task hide/show (per character) ────────────────────────────────────
 async function toggleRegularTaskHidden(charId, taskId, currentlyHidden) {
   const c = energyCharacters.find(ch => ch.id === charId);
   if (!c) return;
   const hiddenMDs = { ...(c.hiddenMDs || {}), [String(taskId)]: !currentlyHidden };
-  const updated = await window.api.setCharacterInfo({ id: charId, hiddenMDs, level: c.level, clan: c.clan, bg: c.bg, image: c.image });
+  const updated   = await window.api.setCharacterInfo({ id: charId, hiddenMDs, level: c.level, clan: c.clan, bg: c.bg, image: c.image });
   energyCharacters = updated;
   renderTasks();
 }
 
-// ── Energy task hide/show (per character) ─────────────────────────────────────
 async function toggleTaskHidden(charId, taskId, currentlyHidden) {
   const c = energyCharacters.find(ch => ch.id === charId);
   if (!c) return;
   const hiddenMDs = { ...(c.hiddenMDs || {}), [String(taskId)]: !currentlyHidden };
-  const updated = await window.api.setCharacterInfo({
+  const updated   = await window.api.setCharacterInfo({
     id: charId, level: c.level, clan: c.clan, bg: c.bg, image: c.image, hiddenMDs,
   });
   energyCharacters = updated;
@@ -233,7 +221,6 @@ async function toggleTaskHidden(charId, taskId, currentlyHidden) {
   if (activeTab === 'blue' || activeTab === 'red') renderEnergyTab(activeTab);
 }
 
-// ── Energy task drag-and-drop (per character) ─────────────────────────────────
 let energyDragSrcIdx = null;
 
 function onEnergyDragStart(e, idx) {
@@ -265,9 +252,9 @@ async function onEnergyDrop(e, idx, type, charId) {
   const c = energyCharacters.find(ch => ch.id === charId);
   if (!c) return;
 
-  const order = (c.mdOrder || {})[type] || [];
+  const order       = (c.mdOrder || {})[type] || [];
   const energyTasks = tasks.filter(t => t.energyType === type && !t.disabled);
-  const sorted = [...energyTasks].sort((a, b) => {
+  const sorted      = [...energyTasks].sort((a, b) => {
     const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
     if (ai === -1 && bi === -1) return 0;
     if (ai === -1) return 1;
@@ -276,7 +263,7 @@ async function onEnergyDrop(e, idx, type, charId) {
   });
 
   const reordered = [...sorted];
-  const [moved] = reordered.splice(energyDragSrcIdx, 1);
+  const [moved]   = reordered.splice(energyDragSrcIdx, 1);
   reordered.splice(idx, 0, moved);
 
   const mdOrder = { ...(c.mdOrder || {}), [type]: reordered.map(t => t.id) };
@@ -286,8 +273,6 @@ async function onEnergyDrop(e, idx, type, charId) {
   energyCharacters = updated;
   renderEnergyTab(type);
 }
-
-// ── Task CRUD ─────────────────────────────────────────────────────────────────
 
 async function addTask() {
   const input      = document.getElementById('task-input');
@@ -301,11 +286,6 @@ async function addTask() {
   await loadTasks();
 }
 
-async function toggleTask(id) {
-  tasks = await window.api.toggleTask(id);
-  renderTasks();
-}
-
 async function deleteTask(id) {
   tasks = await window.api.deleteTask(id);
   renderTasks();
@@ -315,8 +295,6 @@ async function pickTaskImage(id) {
   const updated = await window.api.setTaskImage(id);
   if (updated) { tasks = updated; renderTasks(); }
 }
-
-// ── Drag-and-drop ─────────────────────────────────────────────────────────────
 
 function onTaskDragStart(e, idx) {
   taskDragSrcIdx = idx;
@@ -348,7 +326,7 @@ async function onTaskDrop(e, idx) {
   if (taskDragSrcIdx === null || taskDragSrcIdx === idx) return;
   const nonEnergy = tasks.filter(t => !t.energyType && !t.disabled);
   const reordered = [...nonEnergy];
-  const [moved] = reordered.splice(taskDragSrcIdx, 1);
+  const [moved]   = reordered.splice(taskDragSrcIdx, 1);
   reordered.splice(idx, 0, moved);
   tasks = await window.api.reorderTasks(reordered.map(t => t.id));
   renderTasks();

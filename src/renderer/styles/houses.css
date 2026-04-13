@@ -68,14 +68,16 @@
 
 /* ── House icon ── */
 .house-icon {
-  font-size: 18px;
   flex-shrink: 0;
   line-height: 1;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
 }
-.house-icon-gray    { filter: grayscale(1); }
-.house-icon-red     { background: rgba(232, 93, 93, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(232,93,93,0.4); }
-.house-icon-green   { background: rgba(76, 175, 80, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(76,175,80,0.4); }
+.house-svg-icon     { width: 16px; height: 16px; fill: currentColor; display: block; flex-shrink: 0; }
+.house-icon-gray    { color: var(--text-muted); }
+.house-icon-red     { color: rgb(232, 93, 93);  background: rgba(232, 93, 93, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(232,93,93,0.4); }
+.house-icon-green   { color: rgb(76, 175, 80);  background: rgba(76, 175, 80, 0.2);  border-radius: 6px; padding: 2px 4px; border: 1px solid rgba(76,175,80,0.4); }
 
 /* ── Row content ── */
 .house-name-cell {
@@ -146,16 +148,17 @@
 
 /* ── Login card house icon ── */
 .house-login-icon {
-  font-size: 16px;
   line-height: 1;
   border-radius: 6px;
   padding: 3px 5px;
   flex-shrink: 0;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
 }
-.house-login-icon.gray  { filter: grayscale(1); border: 1px solid var(--border); }
-.house-login-icon.red   { background: rgba(232, 93, 93, 0.2);  border: 1px solid rgba(232,93,93,0.4); }
-.house-login-icon.green { background: rgba(76, 175, 80, 0.2);  border: 1px solid rgba(76,175,80,0.4); }
+.house-login-icon.gray  { color: var(--text-muted); border: 1px solid var(--border); }
+.house-login-icon.red   { color: rgb(232, 93, 93);  background: rgba(232, 93, 93, 0.2);  border: 1px solid rgba(232,93,93,0.4); }
+.house-login-icon.green { color: rgb(76, 175, 80);  background: rgba(76, 175, 80, 0.2);  border: 1px solid rgba(76,175,80,0.4); }
 
 /* ── Empty state ── */
 #house-list .empty-state {

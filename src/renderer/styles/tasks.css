@@ -168,9 +168,10 @@
 
 /* ── Server save icon ── */
 .task-ss-icon {
-  font-size: 13px;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
-  opacity: 0.7;
+  fill: var(--text-muted);
 }
 
 /* ── Delete ── */

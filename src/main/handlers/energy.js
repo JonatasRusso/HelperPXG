@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron');
 const store = require('../store');
+const { withImageUrls } = require('../imageStore');
 
 function serverComputeEnergy(stored) {
   if (!stored) return 0;
@@ -12,9 +13,9 @@ function serverComputeEnergy(stored) {
 module.exports = function registerEnergyHandlers() {
   ipcMain.handle('energy:runTask', (_, characterId, taskId, tierIndex) => {
     const chars = store.get('characters');
-    const task = store.get('tasks').find(t => t.id === taskId);
-    if (!task || !task.tiers || !task.tiers[tierIndex]) return chars;
-    const cost = task.tiers[tierIndex].energyCost;
+    const task  = store.get('tasks').find(t => t.id === taskId);
+    if (!task || !task.tiers || !task.tiers[tierIndex]) return withImageUrls(chars);
+    const cost    = task.tiers[tierIndex].energyCost;
     const updated = chars.map(c => {
       if (c.id !== characterId) return c;
       const available = serverComputeEnergy(c.blueEnergy);
@@ -23,18 +24,18 @@ module.exports = function registerEnergyHandlers() {
       return {
         ...c,
         blueEnergy: { ...c.blueEnergy, current: Math.max(0, available - cost), lastUpdated: Date.now() },
-        runCounts: { ...rc, [String(taskId)]: (rc[String(taskId)] || 0) + 1 },
+        runCounts:  { ...rc, [String(taskId)]: (rc[String(taskId)] || 0) + 1 },
       };
     });
     store.set('characters', updated);
-    return updated;
+    return withImageUrls(updated);
   });
 
   ipcMain.handle('energy:runRedTask', (_, characterId, taskId, tierIndex) => {
     const chars = store.get('characters');
-    const task = store.get('tasks').find(t => t.id === taskId);
-    if (!task || !task.tiers || !task.tiers[tierIndex]) return chars;
-    const cost = task.tiers[tierIndex].energyCost;
+    const task  = store.get('tasks').find(t => t.id === taskId);
+    if (!task || !task.tiers || !task.tiers[tierIndex]) return withImageUrls(chars);
+    const cost    = task.tiers[tierIndex].energyCost;
     const updated = chars.map(c => {
       if (c.id !== characterId) return c;
       const available = serverComputeEnergy(c.redEnergy);
@@ -46,6 +47,6 @@ module.exports = function registerEnergyHandlers() {
       };
     });
     store.set('characters', updated);
-    return updated;
+    return withImageUrls(updated);
   });
 };

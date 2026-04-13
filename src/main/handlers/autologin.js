@@ -2,7 +2,6 @@ const { ipcMain, safeStorage } = require('electron');
 const store = require('../store');
 const koffi = require('koffi');
 
-// ─── Windows API via koffi ────────────────────────────────────────────────────
 const user32   = koffi.load('user32.dll');
 const kernel32 = koffi.load('kernel32.dll');
 
@@ -17,31 +16,20 @@ const AttachThreadInput        = user32.func('AttachThreadInput',        'bool',
 const SendInputFn              = user32.func('SendInput',                'uint32', ['uint32', 'void *', 'int32']);
 const GetCurrentThreadId       = kernel32.func('GetCurrentThreadId',     'uint32', []);
 
-// ─── INPUT struct layout (64-bit Windows) ────────────────────────────────────
-// Offset  0: type     (uint32) = 1 (INPUT_KEYBOARD)
-// Offset  4: padding  (4 bytes)
-// Offset  8: wVk      (uint16)
-// Offset 10: wScan    (uint16)
-// Offset 12: dwFlags  (uint32)
-// Offset 16: time     (uint32) = 0
-// Offset 20: padding  (4 bytes)
-// Offset 24: dwExtraInfo (uint64) = 0
-// Offset 32: padding  (8 bytes, union = 32 bytes = MOUSEINPUT size)
-// Total: 40 bytes
-const INPUT_SIZE         = 40;
+const INPUT_SIZE         = 40; // sizeof(INPUT) on 64-bit Windows
 const KEYEVENTF_KEYUP    = 0x0002;
 const KEYEVENTF_UNICODE  = 0x0004;
 const KEYEVENTF_SCANCODE = 0x0008;
-const VK_MENU            = 0xA4;  // Alt
-const SC_TAB             = 0x0F;  // scan code TAB
-const SC_RETURN          = 0x1C;  // scan code ENTER
+const VK_MENU            = 0xA4;
+const SC_TAB             = 0x0F;
+const SC_RETURN          = 0x1C;
 
 function makeKeyInput(wVk, wScan, dwFlags) {
   const buf = Buffer.alloc(INPUT_SIZE, 0);
-  buf.writeUInt32LE(1,       0);   // type = INPUT_KEYBOARD
-  buf.writeUInt16LE(wVk,     8);   // wVk
-  buf.writeUInt16LE(wScan,   10);  // wScan
-  buf.writeUInt32LE(dwFlags, 12);  // dwFlags
+  buf.writeUInt32LE(1,       0);
+  buf.writeUInt16LE(wVk,     8);
+  buf.writeUInt16LE(wScan,   10);
+  buf.writeUInt32LE(dwFlags, 12);
   return buf;
 }
 
@@ -61,7 +49,6 @@ function tap(vk) {
   return SendInputFn(2, buf, INPUT_SIZE);
 }
 
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -77,7 +64,6 @@ function typeText(text) {
   }
 }
 
-// ─── Handler ──────────────────────────────────────────────────────────────────
 module.exports = function registerAutologinHandlers() {
   ipcMain.handle('autologin:runForAccount', async (_, id) => {
     const account = store.get('accounts').find(a => a.id === id);
@@ -101,31 +87,30 @@ module.exports = function registerAutologinHandlers() {
     // 2. Restore if minimized
     if (IsIconic(hwnd)) ShowWindow(hwnd, 9);
 
-    // 3. Focus: attach to foreground thread + Alt trick + SetForegroundWindow
+    // 3. Focus: attach threads + Alt key trick to bypass SetForegroundWindow restrictions
     const fg       = GetForegroundWindow();
     const fgThread = GetWindowThreadProcessId(fg, null);
     const myThread = GetCurrentThreadId();
-
     if (fgThread !== myThread) AttachThreadInput(fgThread, myThread, true);
     tap(VK_MENU);
     BringWindowToTop(hwnd);
     SetForegroundWindow(hwnd);
     if (fgThread !== myThread) AttachThreadInput(fgThread, myThread, false);
 
-    // 4. Aguarda foco transferir + delay configurado
-    await sleep(Math.max(delay, 200));
+    // 4. Wait for focus transfer + configured delay
+    await sleep(Math.max(delay, 10));
 
     if (koffi.address(GetForegroundWindow()) !== koffi.address(hwnd)) {
       return { success: false, error: 'Não foi possível focar a janela do jogo.' };
     }
 
-    // 5. Digita credenciais via SendInput
+    // 5. Type credentials via SendInput (Unicode, no clipboard)
     typeText(account.username);
-    await sleep(80);
+    await sleep(10);
     tapScan(SC_TAB);
-    await sleep(80);
+    await sleep(10);
     typeText(password);
-    await sleep(80);
+    await sleep(10);
     tapScan(SC_RETURN);
 
     return { success: true };

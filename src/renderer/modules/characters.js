@@ -1,17 +1,15 @@
-// ─── Characters ────────────────────────────────────────────────────────────────
 let characters = [];
 let allTasks   = [];
 
 async function loadCharacters() {
-  // getTasks runs checkResets (may write updated taskState to store);
-  // getCharacters must run after so it reads the already-reset data.
+  // getTasks runs checkResets first; getCharacters must follow to read already-reset data.
   allTasks   = await window.api.getTasks();
   characters = await window.api.getCharacters();
   renderCharacters();
 }
 
 const LEVEL_COLORS = {
-  '300-': { color: '#888',     bg: 'rgba(136,136,136,0.25)' },
+  '300-': { color: '#888888',  bg: 'rgba(136,136,136,0.25)' },
   '300+': { color: '#4caf50',  bg: 'rgba(76,175,80,0.25)'   },
   '400+': { color: '#2196f3',  bg: 'rgba(33,150,243,0.25)'  },
   '500+': { color: '#ff9800',  bg: 'rgba(255,152,0,0.25)'   },
@@ -37,9 +35,7 @@ function renderCharacters() {
   }
 
   grid.innerHTML = characters.map(c => {
-    const bgSrc = c.image
-      ? c.image.replace(/'/g, '')
-      : c.bg ? `../assets/Personagens/${c.bg}` : '';
+    const bgSrc   = c.image ? c.image.replace(/'/g, '') : c.bg ? `../assets/Personagens/${c.bg}` : '';
     const bgStyle = bgSrc ? `background-image:url('${bgSrc}');` : '';
 
     const placeholder = !bgSrc
@@ -48,9 +44,9 @@ function renderCharacters() {
 
     const color      = levelBadgeStyle(c.level);
     const bgColor    = levelBadgeBg(c.level);
-    const nwBadge    = c.nwLevel != null
-      ? `<span class="char-nw-badge">${c.nwLevel}</span>`
-      : '';
+    const clanCol    = clanColor(c.clan, color);
+    const clanCol2   = clanColor2(c.clan, color);
+    const nwBadge    = c.nwLevel != null ? `<span class="char-nw-badge">${c.nwLevel}</span>` : '';
     const badgeInner = `${escapeHtml(String(c.level))}${nwBadge ? `<span class="char-level-sep">|</span>${nwBadge}` : ''}`;
     const clanIcon   = c.clan
       ? `<img class="char-clan-icon" src="../assets/cla/${escapeHtml(c.clan)}.png" onerror="this.style.display='none'" />`
@@ -61,12 +57,10 @@ function renderCharacters() {
          </span>`
       : `<span class="char-level-badge" style="color:${color};border-color:${color};background:rgba(30,30,30,0.85)">${clanIcon}${badgeInner}</span>`;
 
-    // Task thumbnails — up to 20 (4 cols × 4 rows + scroll)
     const hidden = c.hiddenMDs || {};
-    const assignedTasks = c.taskIds
-      .map(tid => allTasks.find(t => t.id === tid))
-      .filter(t => t && !hidden[String(t.id)])
-      .slice(0, 20);
+    const assignedTasks = allTasks
+      .filter(t => !t.energyType && !t.disabled && !hidden[String(t.id)])
+      .slice(0, 12);
 
     const thumbsHtml = assignedTasks.map(t => {
       if (t.energyType === 'blue') {
@@ -75,7 +69,7 @@ function renderCharacters() {
         const prefIdx   = (c.preferredTiers || {})[String(t.id)];
         const cost      = prefIdx !== undefined ? (t.tiers[prefIdx]?.energyCost ?? 0) : (t.tiers[0]?.energyCost ?? 0);
         const canRun    = blueNow !== null && blueNow >= cost && cost > 0;
-        const bonusIcon = runCount < 2 ? `<span class="char-task-bonus" title="Bônus semanal disponível">${ICON_BONUS}</span>` : '';
+        const bonusIcon = `<span class="char-task-bonus${runCount >= 2 ? ' bonus-inactive' : ''}" title="${runCount < 2 ? 'Bônus semanal disponível' : 'Bônus já utilizado'}">${ICON_BONUS}</span>`;
         const inner     = t.image
           ? `<img class="char-task-thumb-img" src="${t.image}" />`
           : `<span class="char-task-thumb-letter">${escapeHtml(t.title.charAt(0))}</span>`;
@@ -87,21 +81,20 @@ function renderCharacters() {
       }
 
       if (t.energyType === 'red') {
-        const done    = !!c.taskState?.[String(t.id)];
-        const redNow  = computeEnergy(c.redEnergy);
-        const cost    = t.tiers[0]?.energyCost ?? 0;
-        const canRun  = !done && redNow !== null && redNow >= cost;
-        const inner   = t.image
+        const done   = !!c.taskState?.[String(t.id)];
+        const redNow = computeEnergy(c.redEnergy);
+        const cost   = t.tiers[0]?.energyCost ?? 0;
+        const canRun = !done && redNow !== null && redNow >= cost;
+        const inner  = t.image
           ? `<img class="char-task-thumb-img" src="${t.image}" />`
           : `<span class="char-task-thumb-letter">${escapeHtml(t.title.charAt(0))}</span>`;
-        const check   = done ? `<span class="char-task-check">✓</span>` : '';
+        const check  = done ? `<span class="char-task-check">✓</span>` : '';
         return `<button class="char-task-thumb ${done ? 'done' : ''}"
           onclick="event.stopPropagation(); charRunRedTask(${c.id}, ${t.id})"
           ${done ? 'disabled' : ''} ${!canRun && !done ? 'title="Energia insuficiente"' : ''}
           title="${escapeHtml(t.title)}">${inner}${check}</button>`;
       }
 
-      // Non-energy task — existing behaviour
       const done  = !!c.taskState[String(t.id)];
       const inner = t.image
         ? `<img class="char-task-thumb-img" src="${t.image}" />`
@@ -112,8 +105,8 @@ function renderCharacters() {
         title="${escapeHtml(t.title)}">${inner}${check}</button>`;
     }).join('');
 
-    const blueNow = computeEnergy(c.blueEnergy);
-    const redNow  = computeEnergy(c.redEnergy);
+    const blueNow     = computeEnergy(c.blueEnergy);
+    const redNow      = computeEnergy(c.redEnergy);
     const energyBadge = (blueNow !== null || redNow !== null) ? `
       <div class="char-energy-badge">
         ${redNow  !== null ? `<button class="char-energy-red${redNow   >= c.redEnergy.max  ? ' full' : ''}" onclick="event.stopPropagation(); openEnergyDropdown(${c.id}, 'red', this)">${ICON_ENERGY_RED}${redNow}</button>`  : ''}
@@ -121,21 +114,25 @@ function renderCharacters() {
       </div>` : '';
 
     return `
-      <div class="char-card" style="${bgStyle}">
-        ${placeholder}
-        <div class="char-name-bar">
-          <span class="char-name">${escapeHtml(c.name)}</span>
-          ${energyBadge}
-        </div>
-        <div class="char-bottom-bar">
-          <div class="char-bottom-left">${levelBadge}</div>
-          <span class="char-server">${escapeHtml(c.server)}</span>
-        </div>
-        <div class="char-card-hover">
-          <div class="char-task-col">${thumbsHtml}</div>
-          <button class="char-edit-btn"
-            onclick="event.stopPropagation(); openCharEdit(${c.id})"
-            title="Editar"><span>✏</span></button>
+      <div class="${c.nwLevel != null ? 'char-card char-card--nw' : 'char-card'}"
+        data-char-id="${c.id}"
+        style="--clan-color:${clanCol};--clan-color-2:${clanCol2};${c.nwLevel != null ? `--tier-color:${clanCol};` : ''}">
+        <div class="char-card-inner" style="${bgStyle}">
+          ${placeholder}
+          <div class="char-name-bar">
+            <span class="char-name">${escapeHtml(c.name)}</span>
+            ${energyBadge}
+          </div>
+          <div class="char-bottom-bar">
+            <div class="char-bottom-left">${levelBadge}</div>
+            <span class="char-server">${escapeHtml(c.server)}</span>
+          </div>
+          <div class="char-card-hover">
+            <div class="char-task-col">${thumbsHtml}</div>
+            <button class="char-edit-btn"
+              onclick="event.stopPropagation(); openCharEdit(${c.id})"
+              title="Editar"><span>✏</span></button>
+          </div>
         </div>
       </div>`;
   }).join('');
@@ -175,7 +172,7 @@ async function charRunRedTask(charId, taskId) {
   const c    = characters.find(ch => ch.id === charId);
   const task = allTasks.find(t => t.id === taskId);
   if (!c || !task) return;
-  if (c.taskState?.[String(taskId)]) return; // already done this week
+  if (c.taskState?.[String(taskId)]) return;
 
   let tierIndex = (c.preferredTiers || {})[String(taskId)];
 
@@ -197,6 +194,22 @@ async function charRunRedTask(charId, taskId) {
   if (typeof loadAccounts === 'function') loadAccounts();
 }
 
+function previewClanColor(charId, primary, secondary) {
+  const card = document.querySelector(`.char-card[data-char-id="${charId}"]`);
+  if (!card) return;
+  if (primary   !== null) card.style.setProperty('--clan-color',   primary);
+  if (secondary !== null) card.style.setProperty('--clan-color-2', secondary);
+}
+
+function onClanSelectForEdit(dropdownId, clan) {
+  const match = dropdownId.match(/^edit-clan-(\d+)$/);
+  if (!match) return;
+  const charId = Number(match[1]);
+  const c      = characters.find(ch => ch.id === charId);
+  const col1   = clanColor(clan,  levelBadgeStyle(c?.level || '300-'));
+  const col2   = clanColor2(clan, levelBadgeStyle(c?.level || '300-'));
+  previewClanColor(charId, col1, col2);
+}
 
 function openCharEdit(id) {
   const c = characters.find(ch => ch.id === id);
@@ -205,7 +218,6 @@ function openCharEdit(id) {
 
   const blueE = c.blueEnergy || { current: 0, max: 100, regenMin: 30 };
   const redE  = c.redEnergy  || { current: 0, max: 100, regenMin: 60 };
-
 
   const currentLevel = String(c.level || '300-');
   const currentBg    = c.bg    || 'personagem-bg-01.png';
@@ -221,6 +233,12 @@ function openCharEdit(id) {
         <button class="char-rename-btn" onclick="toggleNameEdit(${id})" title="Renomear"><span>✏</span></button>
         <input type="text" id="edit-name-${id}" class="char-name-input"
           value="${escapeHtml(c.name)}" maxlength="60" style="display:none" />
+      </div>
+      <div class="char-edit-server-row">
+        <span id="edit-server-display-${id}" class="char-edit-server-display">${escapeHtml(c.server)}</span>
+        <button class="char-rename-btn" onclick="toggleServerEdit(${id})" title="Mudar servidor"><span>✏</span></button>
+        <input type="text" id="edit-server-${id}" class="char-name-input"
+          value="${escapeHtml(c.server)}" maxlength="60" style="display:none" placeholder="Servidor" />
       </div>
 
       <label class="field-label">Level</label>
@@ -269,6 +287,15 @@ function openCharEdit(id) {
     </div>`;
 }
 
+function toggleServerEdit(id) {
+  const display = document.getElementById(`edit-server-display-${id}`);
+  const input   = document.getElementById(`edit-server-${id}`);
+  const opening = input.style.display === 'none';
+  display.style.display = opening ? 'none' : '';
+  input.style.display   = opening ? ''     : 'none';
+  if (opening) input.focus();
+}
+
 function toggleNameEdit(id) {
   const display = document.getElementById(`edit-name-display-${id}`);
   const input   = document.getElementById(`edit-name-${id}`);
@@ -287,26 +314,23 @@ async function charToggleFavorite(id) {
   if (!c) return;
   const newFav = !c.favorite;
   characters = await window.api.setCharacterInfo({
-    id,
-    favorite: newFav,
-    level: c.level,
-    clan: c.clan,
-    bg: c.bg,
-    image: c.image,
+    id, favorite: newFav, level: c.level, clan: c.clan, bg: c.bg, image: c.image,
   });
   renderCharacters();
   const btn = document.querySelector('#char-edit-area .char-fav-btn');
   if (btn) btn.classList.toggle('active', newFav);
+  if (typeof loadAccounts === 'function') loadAccounts();
 }
 
 async function charSaveAll(id) {
-  const nameInput = document.getElementById(`edit-name-${id}`);
-  const name = nameInput.style.display !== 'none' ? nameInput.value.trim() : null;
+  const nameInput   = document.getElementById(`edit-name-${id}`);
+  const name        = nameInput.style.display !== 'none' ? nameInput.value.trim() : null;
+  const serverInput = document.getElementById(`edit-server-${id}`);
+  const server      = serverInput.style.display !== 'none' ? serverInput.value.trim() : null;
 
   const activeTag = document.querySelector(`#edit-level-tags-${id} .level-tag--active`);
-  const level = activeTag ? activeTag.textContent.trim() : '300-';
-
-  const clan = document.getElementById(`edit-clan-${id}`)?.dataset.value ?? '';
+  const level     = activeTag ? activeTag.textContent.trim() : '300-';
+  const clan      = document.getElementById(`edit-clan-${id}`)?.dataset.value ?? '';
 
   const activeBg    = document.querySelector(`#edit-bg-${id} .bg-thumb--active`);
   const customImage = activeBg?.dataset.image || null;
@@ -325,9 +349,9 @@ async function charSaveAll(id) {
   const redRegMin  = parseInt(document.getElementById(`e-red-reg-min-${id}`)?.value, 10) || 0;
   const redRegSec  = parseInt(document.getElementById(`e-red-reg-sec-${id}`)?.value, 10) || 0;
   const redReg     = redRegMin + redRegSec / 60;
-  const favorite  = c?.favorite ?? false;
-  const nwRaw     = document.getElementById(`edit-nwlevel-${id}`)?.value;
-  const nwLevel   = nwRaw !== '' && nwRaw != null ? parseInt(nwRaw, 10) : null;
+  const favorite   = c?.favorite ?? false;
+  const nwRaw      = document.getElementById(`edit-nwlevel-${id}`)?.value;
+  const nwLevel    = nwRaw !== '' && nwRaw != null ? parseInt(nwRaw, 10) : null;
 
   const blueEnergy = !isNaN(blueCur)
     ? { current: Math.max(0, blueCur), max: Math.max(1, blueMax || 100), regenMin: blueReg > 0 ? blueReg : 30 }
@@ -338,7 +362,7 @@ async function charSaveAll(id) {
 
   allTasks   = await window.api.getTasks();
   characters = await window.api.setCharacterInfo({
-    id, level, clan, bg, image, name,
+    id, level, clan, bg, image, name, server,
     blueEnergy, redEnergy, favorite, nwLevel,
     preferredTiers: c?.preferredTiers || {},
   });
@@ -353,7 +377,6 @@ async function charDelete(id) {
   renderCharacters();
 }
 
-// ─── Tier picker modal ────────────────────────────────────────────────────────
 function showTierPickerModal(task) {
   return new Promise(resolve => {
     document.getElementById('tier-picker-title').textContent = task.title;
@@ -375,7 +398,6 @@ function cancelTierPicker() {
   if (window._tierPickerResolve) { window._tierPickerResolve(null); window._tierPickerResolve = null; }
 }
 
-// ─── Energy quick dropdown ─────────────────────────────────────────────────────
 function closeEnergyDropdown() {
   const el = document.getElementById('energy-quick-dropdown');
   if (el) el.remove();
@@ -411,7 +433,7 @@ function openEnergyDropdown(charId, type, btnEl) {
       const cost     = tier?.energyCost ?? 0;
       const canRun   = energyNow !== null && energyNow >= cost && cost > 0;
       const runCount = (c.runCounts || {})[String(t.id)] ?? 0;
-      const bonus    = runCount < 2 ? `<span class="eqd-bonus" title="Bônus semanal disponível">${ICON_BONUS}</span>` : '';
+      const bonus    = `<span class="eqd-bonus${runCount >= 2 ? ' bonus-inactive' : ''}" title="${runCount < 2 ? 'Bônus semanal disponível' : 'Bônus já utilizado'}">${ICON_BONUS}</span>`;
       return `<div class="eqd-row">
         <span class="eqd-title">${bonus}${escapeHtml(t.title)}</span>
         <span class="eqd-cost">${ICON_ENERGY_BLUE} ${cost}</span>
@@ -431,9 +453,9 @@ function openEnergyDropdown(charId, type, btnEl) {
     }
   }).join('');
 
-  const icon = type === 'blue' ? ICON_ENERGY_BLUE : ICON_ENERGY_RED;
+  const icon     = type === 'blue' ? ICON_ENERGY_BLUE : ICON_ENERGY_RED;
   const dropdown = document.createElement('div');
-  dropdown.id = 'energy-quick-dropdown';
+  dropdown.id        = 'energy-quick-dropdown';
   dropdown.className = 'energy-quick-dropdown';
   dropdown.innerHTML = `
     <div class="eqd-header">${icon} ${energyNow ?? 0}/${energyMax}</div>

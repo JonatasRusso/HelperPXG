@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: file:;" />
   <title>PxG Helper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -17,13 +17,12 @@
   <link rel="stylesheet" href="styles/energy.css" />
 </head>
 <body>
-  <!-- Custom Titlebar -->
   <div class="titlebar">
     <button class="hamburger-btn" onclick="toggleSidebar()" title="Menu">
       <span></span><span></span><span></span>
     </button>
     <div class="titlebar-drag">
-      <span class="titlebar-logo">⚔</span>
+      <img class="titlebar-logo" src="../assets/helper.png" alt="logo" />
       <span class="titlebar-title">PxG Helper</span>
     </div>
     <div class="titlebar-controls">
@@ -33,22 +32,20 @@
     </div>
   </div>
 
-  <!-- Layout -->
   <div class="layout">
-    <!-- Sidebar -->
     <nav class="sidebar">
       <div class="nav-items">
         <button class="nav-btn active" data-page="login" onclick="navigate('login')">
-          <span class="nav-icon">🔑</span>
+          <span class="nav-icon"><span class="nav-custom-icon nav-icon-login"></span></span>
           <span>Login</span>
         </button>
         <button class="nav-btn" data-page="personagens"
           onclick="navigate('personagens'); loadCharacters()">
-          <span class="nav-icon">🧙</span>
+          <span class="nav-icon"><span class="nav-custom-icon nav-icon-personagem"></span></span>
           <span>Personagens</span>
         </button>
         <button class="nav-btn" data-page="houses" onclick="navigate('houses'); loadHouses()">
-          <span class="nav-icon">🏠</span>
+          <span class="nav-icon"><span class="nav-custom-icon nav-icon-house"></span></span>
           <span>Houses</span>
         </button>
         <button class="nav-btn" data-page="tasks" onclick="navigate('tasks'); loadTasks()">
@@ -60,16 +57,18 @@
           <span>Config</span>
         </button>
       </div>
-      <div class="sidebar-footer">v0.8.3</div>
+      <div class="sidebar-footer">v1.0</div>
     </nav>
 
-    <!-- Main content -->
     <main class="content">
 
       <!-- AUTO-LOGIN PAGE -->
       <section id="page-login" class="page active">
         <div class="page-header">
           <h1>Login</h1>
+          <button class="btn-launch-login" onclick="launchGame()" style="margin-left:auto">
+            <img src="../assets/pxgmeclient.png" class="launch-login-icon" />Abrir PxG
+          </button>
         </div>
         <div id="account-list" class="account-list"></div>
         <div id="login-status" class="status-msg"></div>
@@ -79,7 +78,6 @@
       <section id="page-tasks" class="page">
         <div class="page-header">
           <h1>Tasks</h1>
-          <span class="badge" id="tasks-counter">0/0</span>
         </div>
         <div class="task-tab-bar">
           <button class="task-tab active" data-tab="all"  onclick="switchTaskTab('all')">Tasks</button>
@@ -87,26 +85,8 @@
           <button class="task-tab" id="tab-btn-blue" data-tab="blue" onclick="switchTaskTab('blue')"> Azul</button>
         </div>
 
-        <!-- Tasks tab -->
         <div id="task-tab-all" class="task-tab-content">
           <select id="task-char-select" class="energy-char-select" onchange="renderTasks()"></select>
-          <div class="task-form">
-            <div class="task-input-row">
-              <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
-              <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
-            </div>
-            <div class="task-options-row">
-              <select id="task-type" class="task-type-select">
-                <option value="daily">Diária</option>
-                <option value="weekly">Semanal</option>
-                <option value="monthly">Mensal</option>
-              </select>
-              <label class="task-server-save-label">
-                <input type="checkbox" id="task-server-save" />
-                Reseta no Server Save
-              </label>
-            </div>
-          </div>
           <div id="task-list" class="task-list"></div>
           <button class="task-show-disabled" onclick="toggleDisabledSection()">Mostrar desativadas</button>
           <div id="task-disabled-section" class="task-disabled-section" style="display:none">
@@ -114,14 +94,12 @@
           </div>
         </div>
 
-        <!-- Blue tab -->
         <div id="task-tab-blue" class="task-tab-content hidden">
           <select id="energy-char-select-blue" class="energy-char-select"
             onchange="renderEnergyTab('blue')"></select>
           <div id="energy-list-blue"></div>
         </div>
 
-        <!-- Red tab -->
         <div id="task-tab-red" class="task-tab-content hidden">
           <select id="energy-char-select-red" class="energy-char-select"
             onchange="renderEnergyTab('red')"></select>
@@ -169,7 +147,27 @@
           <h1>Config</h1>
         </div>
 
-        <!-- Contas -->
+        <div class="card">
+          <label class="field-label">Tasks globais</label>
+          <div class="task-form">
+            <div class="task-input-row">
+              <input type="text" id="task-input" placeholder="Nova task..." maxlength="120" />
+              <button class="btn-primary" onclick="addTask()">+ Adicionar</button>
+            </div>
+            <div class="task-options-row">
+              <select id="task-type" class="task-type-select">
+                <option value="daily">Diária</option>
+                <option value="weekly">Semanal</option>
+                <option value="monthly">Mensal</option>
+              </select>
+              <label class="task-server-save-label">
+                <input type="checkbox" id="task-server-save" />
+                Reseta no Server Save
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="accounts-header">
             <span class="field-label" style="margin:0">Contas</span>
@@ -181,7 +179,9 @@
             <input type="text" id="new-acc-user" placeholder="Usuário / E-mail" autocomplete="off" />
             <div class="pass-row">
               <input type="password" id="new-acc-pass" placeholder="Senha" autocomplete="off" />
-              <button class="btn-icon" onclick="toggleNewPass()" title="Mostrar/ocultar">👁</button>
+              <button class="btn-icon" onclick="toggleNewPass()" title="Mostrar/ocultar">
+                <img src="../assets/icons/hide.svg" id="new-acc-eye" class="pw-eye-icon" />
+              </button>
             </div>
             <div id="add-account-status" class="status-msg"></div>
             <div class="add-account-btns">
@@ -193,7 +193,6 @@
           <div id="accounts-config-list"></div>
         </div>
 
-        <!-- Jogo -->
         <div class="card">
           <label class="field-label">Executável do jogo</label>
           <div class="path-row">
@@ -206,17 +205,15 @@
           <div id="launcher-status" class="status-msg"></div>
         </div>
 
-        <!-- Delay -->
         <div class="card">
           <label class="field-label">
-            Delay do auto-login: <strong id="delay-label">3000ms</strong>
+            Delay do auto-login: <strong id="delay-label">1000ms</strong>
           </label>
-          <input type="range" id="delay-slider" min="500" max="10000" step="500" value="3000"
+          <input type="range" id="delay-slider" min="10" max="10000" step="10" value="1000"
             oninput="updateDelay(this.value)" class="slider" />
           <div class="delay-hint">Tempo de espera antes de digitar as credenciais</div>
         </div>
 
-        <!-- Pasta de dados -->
         <div class="card">
           <label class="field-label">Pasta de dados</label>
           <div class="path-row">
@@ -250,7 +247,13 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="utils/icons.js"></script>
+  <script src="utils/dom.js"></script>
+  <script src="utils/clan-colors.js"></script>
+  <script src="utils/clan-ui.js"></script>
+  <script src="utils/char-ui.js"></script>
+  <script src="utils/time.js"></script>
+  <script src="utils/energy.js"></script>
   <script src="modules/tasks.js"></script>
   <script src="modules/accounts.js"></script>
   <script src="modules/characters.js"></script>
@@ -258,11 +261,13 @@
   <script src="modules/config.js"></script>
   <script>
     (async function () {
+      document.getElementById('tab-btn-blue').insertAdjacentHTML('afterbegin', ICON_ENERGY_BLUE);
+      document.getElementById('tab-btn-red').insertAdjacentHTML('afterbegin', ICON_ENERGY_RED);
       await loadTasks();
       await loadAccounts();
       await loadConfig();
-      // Check for task resets every minute while the app is open
       setInterval(loadTasks, 15 * 60 * 1000);
+      window.api.onTasksReset(() => { loadTasks(); loadCharacters(); });
     })();
   </script>
 </body>

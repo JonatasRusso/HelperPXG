@@ -53,6 +53,11 @@ app.whenReady().then(() => {
   registerAutologinHandlers();
   registerConfigHandlers();
   createWindow();
+
+  setInterval(() => {
+    const changed = registerTaskHandlers.runCheckResets();
+    if (changed && mainWindow) mainWindow.webContents.send('tasks:didReset');
+  }, 60_000);
 });
 
 app.on('window-all-closed', () => app.quit());

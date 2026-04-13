@@ -6,15 +6,17 @@ async function loadHouses() {
   renderHouses();
 }
 
+const HOUSE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="house-svg-icon"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`;
+
 function houseIconHtml(house, charName) {
   const days = houseRemaining(house);
   if (days === null) return '';
-  if (days <= 3) {
+  if (days <= 5) {
     const state = house.cpSeparated ? 'green' : 'red';
-    return `<span class="house-icon house-icon-${state}" title="${escapeHtml(charName)}">🏠</span>`;
+    return `<span class="house-icon house-icon-${state}" title="${escapeHtml(charName)}">${HOUSE_SVG}</span>`;
   }
   const opacity = Math.max(0.2, 1 - (days / 30));
-  return `<span class="house-icon house-icon-gray" style="opacity:${opacity}" title="${escapeHtml(charName)}">🏠</span>`;
+  return `<span class="house-icon house-icon-gray" style="opacity:${opacity}" title="${escapeHtml(charName)}">${HOUSE_SVG}</span>`;
 }
 
 function renderHouses() {

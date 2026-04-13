@@ -1,10 +1,9 @@
 const { ipcMain, dialog } = require('electron');
-const fs   = require('fs');
-const path = require('path');
+const path  = require('path');
 const store = require('../store');
+const { saveImage, deleteImage, toUrl } = require('../imageStore');
 
-// ─── BRT reset time helper ────────────────────────────────────────────────────
-// BRT = UTC-3. Server save resets at 07:40 BRT = 10:40 UTC.
+// Server save resets at 07:40 BRT = 10:40 UTC.
 const RESET_HOUR_UTC = 10;
 const RESET_MIN_UTC  = 40;
 
@@ -16,14 +15,13 @@ function calcNextResetAt(type, serverSave) {
     return now + durations[type];
   }
 
-  // Current date/time expressed in BRT (UTC-3)
-  const brtNow  = new Date(now - 3 * 60 * 60 * 1000);
-  const brtYear = brtNow.getUTCFullYear();
-  const brtMonth= brtNow.getUTCMonth();
-  const brtDay  = brtNow.getUTCDate();
-  const brtDow  = brtNow.getUTCDay(); // 0=Sun 1=Mon … 6=Sat
+  // Shift now into BRT (UTC-3) to get local calendar fields
+  const brtNow   = new Date(now - 3 * 60 * 60 * 1000);
+  const brtYear  = brtNow.getUTCFullYear();
+  const brtMonth = brtNow.getUTCMonth();
+  const brtDay   = brtNow.getUTCDate();
+  const brtDow   = brtNow.getUTCDay();
 
-  // UTC timestamp for a given BRT calendar date at 07:40 BRT
   function resetOn(y, m, d) {
     return Date.UTC(y, m, d, RESET_HOUR_UTC, RESET_MIN_UTC, 0, 0);
   }
@@ -40,20 +38,19 @@ function calcNextResetAt(type, serverSave) {
   if (type === 'weekly') {
     if (brtDow === 1 && now < todayReset) return todayReset;
     const daysUntil = (8 - brtDow) % 7 || 7;
-    const nextMon = new Date(brtNow);
+    const nextMon   = new Date(brtNow);
     nextMon.setUTCDate(brtDay + daysUntil);
     return resetOn(nextMon.getUTCFullYear(), nextMon.getUTCMonth(), nextMon.getUTCDate());
   }
 
-  // monthly
   if (brtDay === 1 && now < todayReset) return todayReset;
   return Date.UTC(brtYear, brtMonth + 1, 1, RESET_HOUR_UTC, RESET_MIN_UTC, 0, 0);
 }
 
 function checkResets(tasks) {
-  const now = Date.now();
-  let changed = false;
-  const resetIds = new Set();
+  const now       = Date.now();
+  let changed     = false;
+  const resetIds  = new Set();
   const resetTasks = [];
   const updated = tasks.map(t => {
     if (t.nextResetAt && now >= t.nextResetAt) {
@@ -67,11 +64,13 @@ function checkResets(tasks) {
   return { tasks: updated, changed, resetIds, resetTasks };
 }
 
-// ─── Handlers ────────────────────────────────────────────────────────────────
+function withImageUrls(tasks) {
+  return tasks.map(t => ({ ...t, image: toUrl(t.image) }));
+}
+
 function registerTaskHandlers() {
   ipcMain.handle('tasks:get', () => {
-    let tasks = store.get('tasks');
-    tasks = tasks.filter(t => t.type);
+    let tasks = store.get('tasks').filter(t => t.type);
     const { tasks: reset, changed, resetIds, resetTasks } = checkResets(tasks);
     if (changed) {
       store.set('tasks', reset);
@@ -79,35 +78,33 @@ function registerTaskHandlers() {
         resetTasks.filter(t => t.energyType === 'blue').map(t => String(t.id))
       );
       const chars = store.get('characters');
-      const updatedChars = chars.map(c => {
+      store.set('characters', chars.map(c => {
         const newState     = { ...c.taskState };
         const newRunCounts = { ...(c.runCounts || {}) };
-        resetIds.forEach(id => { if (c.taskIds.includes(id)) newState[String(id)] = false; });
+        resetIds.forEach(id => { if (c.taskIds.includes(id) || String(id) in newState) newState[String(id)] = false; });
         blueResetIds.forEach(id => { delete newRunCounts[id]; });
         return { ...c, taskState: newState, runCounts: newRunCounts };
-      });
-      store.set('characters', updatedChars);
+      }));
     }
-    return reset;
+    return withImageUrls(reset);
   });
 
   ipcMain.handle('tasks:add', (_, { title, type, serverSave, energyType, tiers, slug }) => {
-    const tasks = store.get('tasks').filter(t => t.type);
+    const tasks   = store.get('tasks').filter(t => t.type);
     const newTask = {
-      id: Date.now(),
+      id:         Date.now(),
       title,
       type,
       serverSave: !!serverSave,
       energyType: energyType || null,
-      tiers: Array.isArray(tiers) ? tiers : [],
-      slug: slug || null,
-      disabled: false,
-      done: false,
+      tiers:      Array.isArray(tiers) ? tiers : [],
+      slug:       slug || null,
+      disabled:   false,
+      done:       false,
       nextResetAt: calcNextResetAt(type, serverSave),
-      image: null,
+      image:      null,
     };
     store.set('tasks', [...tasks, newTask]);
-    // Auto-assign non-energy tasks to all characters
     if (!newTask.energyType) {
       const chars = store.get('characters');
       store.set('characters', chars.map(c => ({
@@ -122,15 +119,17 @@ function registerTaskHandlers() {
   ipcMain.handle('tasks:toggle', (_, id) => {
     const tasks = store.get('tasks').map(t => t.id === id ? { ...t, done: !t.done } : t);
     store.set('tasks', tasks);
-    return tasks;
+    return withImageUrls(tasks);
   });
 
   ipcMain.handle('tasks:delete', (_, id) => {
-    const tasks = store.get('tasks').filter(t => t.id !== id);
-    store.set('tasks', tasks);
-    // Remove deleted task from all characters
+    const tasks = store.get('tasks');
+    const task  = tasks.find(t => t.id === id);
+    if (task?.image) deleteImage(task.image);
+    const updated = tasks.filter(t => t.id !== id);
+    store.set('tasks', updated);
     const chars = store.get('characters');
-    const updatedChars = chars.map(c => {
+    store.set('characters', chars.map(c => {
       const newState     = { ...c.taskState };
       const newRunCounts = { ...(c.runCounts || {}) };
       const newPreferred = { ...(c.preferredTiers || {}) };
@@ -139,21 +138,20 @@ function registerTaskHandlers() {
       delete newPreferred[String(id)];
       return {
         ...c,
-        taskIds: c.taskIds.filter(tid => tid !== id),
-        taskState: newState,
-        runCounts: newRunCounts,
+        taskIds:        c.taskIds.filter(tid => tid !== id),
+        taskState:      newState,
+        runCounts:      newRunCounts,
         preferredTiers: newPreferred,
       };
-    });
-    store.set('characters', updatedChars);
-    return tasks;
+    }));
+    return withImageUrls(updated);
   });
 
   ipcMain.handle('tasks:reorder', (_, ids) => {
-    const tasks = store.get('tasks');
+    const tasks     = store.get('tasks');
     const reordered = ids.map(id => tasks.find(t => t.id === id)).filter(Boolean);
     store.set('tasks', reordered);
-    return reordered;
+    return withImageUrls(reordered);
   });
 
   ipcMain.handle('tasks:setImage', async (_, id) => {
@@ -162,22 +160,39 @@ function registerTaskHandlers() {
       filters: [{ name: 'Imagens', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'] }],
     });
     if (canceled || !filePaths.length) return null;
-    const ext     = path.extname(filePaths[0]).slice(1).toLowerCase();
-    const mime    = ext === 'jpg' ? 'jpeg' : ext;
-    const dataUrl = `data:image/${mime};base64,${fs.readFileSync(filePaths[0]).toString('base64')}`;
-    const tasks   = store.get('tasks');
-    const updated = tasks.map(t => t.id === id ? { ...t, image: dataUrl } : t);
+    const tasks    = store.get('tasks');
+    const existing = tasks.find(t => t.id === id);
+    if (existing?.image) deleteImage(existing.image);
+    const filename = saveImage(filePaths[0], 'tasks');
+    const updated  = tasks.map(t => t.id === id ? { ...t, image: filename } : t);
     store.set('tasks', updated);
-    return updated.filter(t => t.type);
+    return withImageUrls(updated.filter(t => t.type));
   });
 
   ipcMain.handle('tasks:setDisabled', (_, id, disabled) => {
     const tasks = store.get('tasks').map(t => t.id === id ? { ...t, disabled } : t);
     store.set('tasks', tasks);
-    return tasks.filter(t => t.type);
+    return withImageUrls(tasks.filter(t => t.type));
   });
-
 }
 
 registerTaskHandlers.calcNextResetAt = calcNextResetAt;
+registerTaskHandlers.runCheckResets  = function() {
+  const tasks = store.get('tasks').filter(t => t.type);
+  const { tasks: reset, changed, resetIds, resetTasks } = checkResets(tasks);
+  if (!changed) return false;
+  store.set('tasks', reset);
+  const blueResetIds = new Set(
+    resetTasks.filter(t => t.energyType === 'blue').map(t => String(t.id))
+  );
+  const chars = store.get('characters');
+  store.set('characters', chars.map(c => {
+    const newState     = { ...c.taskState };
+    const newRunCounts = { ...(c.runCounts || {}) };
+    resetIds.forEach(id => { if (c.taskIds.includes(id) || String(id) in newState) newState[String(id)] = false; });
+    blueResetIds.forEach(id => { delete newRunCounts[id]; });
+    return { ...c, taskState: newState, runCounts: newRunCounts };
+  }));
+  return true;
+};
 module.exports = registerTaskHandlers;

@@ -6,6 +6,14 @@
   padding: 0;
 }
 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; }
+
+/* backup: tema original
 :root {
   --bg: #06030b;
   --surface: #000000;
@@ -17,6 +25,38 @@
   --text-muted: #7a7a9a;
   --success: #4ade80;
   --danger: #f87171;
+  --radius: 8px;
+}
+*/
+
+/* backup: tema darcula escuro
+:root {
+  --bg: #1e1f22;
+  --surface: #2b2d30;
+  --surface2: #27282c;
+  --border: #3d3f41;
+  --accent: #e8b84b;
+  --accent2: #c49a30;
+  --text: #a9b7c6;
+  --text-muted: #808080;
+  --success: #4ade80;
+  --danger: #f87171;
+  --radius: 8px;
+}
+*/
+
+/* tema dracula high contrast */
+:root {
+  --bg: #09021d;
+  --surface: #0f022d;
+  --surface2: #13141a;
+  --border: #746106;
+  --accent: #e8b84b;
+  --accent2: #c49a30;
+  --text: #ffffff;
+  --text-muted: #6272a4;
+  --success: #50fa7b;
+  --danger: #ff5555;
   --radius: 8px;
 }
 

@@ -113,6 +113,7 @@
   font-size: 15px;
   color: var(--text);
   min-width: 80px;
+  flex: 1;
 }
 .account-config-user {
   flex: 1;
@@ -164,6 +165,58 @@
   display: flex;
   gap: 8px;
   align-items: center;
+}
+.panel-pw-trigger {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+.panel-pw-field-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+.panel-pw-input {
+  flex: 1;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  height: 32px;
+  box-sizing: border-box;
+}
+.panel-pw-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.panel-pw-eye {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  padding: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.pw-eye-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+  filter: invert(1);
+  display: block;
+}
+.panel-pw-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.panel-pw-btn {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 13px;
 }
 .panel-vip-input {
   width: 80px;
