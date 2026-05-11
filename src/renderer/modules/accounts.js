@@ -116,7 +116,13 @@ function renderAccountsConfig() {
       ondragend="onDragEnd()"
       ondragleave="onDragLeave(event)">
       <span class="drag-handle">⠿</span>
-      <span class="account-config-name">${escapeHtml(a.name)}</span>
+      <span class="account-config-name" id="rename-name-${a.id}">${escapeHtml(a.name)}</span>
+      <input type="text" class="rename-inline-input" id="rename-input-${a.id}"
+        value="${escapeHtml(a.name)}" maxlength="60" autocomplete="off" style="display:none"
+        onkeydown="onRenameKey(event,${a.id})" onblur="cancelRename(${a.id})" />
+      <button class="btn-rename-inline" draggable="false" onclick="openRename(${a.id})" title="Renomear">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      </button>
       <button class="btn-chevron" draggable="false"
         onclick="toggleAccountPanel(${a.id}, this)" title="Configurações">▸</button>
     </div>
@@ -267,6 +273,34 @@ function toggleAccountPanel(id, btn) {
   const row = btn.closest('.account-config-row');
   row.style.borderRadius = open ? '' : 'var(--radius) var(--radius) 0 0';
   row.style.marginBottom = open ? '' : '0';
+}
+
+function openRename(id) {
+  document.getElementById('rename-name-' + id).style.display = 'none';
+  const input = document.getElementById('rename-input-' + id);
+  input.style.display = 'block';
+  input.select();
+}
+
+function cancelRename(id) {
+  const nameEl = document.getElementById('rename-name-' + id);
+  if (!nameEl) return;
+  nameEl.style.display = '';
+  document.getElementById('rename-input-' + id).style.display = 'none';
+}
+
+async function onRenameKey(e, id) {
+  if (e.key === 'Escape') {
+    cancelRename(id);
+    return;
+  }
+  if (e.key !== 'Enter') return;
+  const input = document.getElementById('rename-input-' + id);
+  const name  = input.value.trim();
+  if (!name) return;
+  accounts = await window.api.renameAccount(id, name);
+  renderAccountsLogin();
+  renderAccountsConfig();
 }
 
 function showPwForm(id) {

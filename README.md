@@ -8,6 +8,17 @@ Baixe o instalador na página de [Releases](../../releases/latest).
 
 ---
 
+## Changelog
+
+### v1.1
+- **Auto-login sem Enter automático** — o login preenche usuário e senha mas não pressiona Enter, evitando que as credenciais sejam enviadas no chat caso o jogo já esteja logado
+- **Renomear conta inline** — clique no ícone de caneta ao lado do nome da conta, edite e pressione Enter para salvar
+
+### v1.0
+- Lançamento inicial
+
+---
+
 ## Funcionalidades
 
 ### Tasks Diárias
@@ -23,8 +34,8 @@ Baixe o instalador na página de [Releases](../../releases/latest).
 - Favoritar personagens
 
 ### Login / Auto-Login
-- Cadastro de múltiplas contas
-- Auto-login: foca a janela do jogo e digita usuário + senha automaticamente via Win32
+- Cadastro de múltiplas contas com renomeação inline
+- Auto-login: foca a janela do jogo e digita usuário + senha automaticamente via Win32 (sem pressionar Enter — evita envio acidental de credenciais no chat caso o jogo já esteja logado)
 - Credenciais armazenadas criptografadas (DPAPI do Windows)
 - Badge de VIP com countdown de dias restantes por conta
 
@@ -40,7 +51,7 @@ Baixe o instalador na página de [Releases](../../releases/latest).
 
 ## Instalação
 
-1. Baixe o arquivo `PxG Helper Setup 1.0.0.exe` em [Releases](../../releases/latest)
+1. Baixe o arquivo `PxG Helper Setup 1.1.0.exe` em [Releases](../../releases/latest)
 2. Execute o instalador
 3. Abra o PxG Helper
 

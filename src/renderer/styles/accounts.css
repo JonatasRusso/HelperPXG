@@ -124,6 +124,39 @@
   white-space: nowrap;
 }
 
+/* ── Rename inline ── */
+.rename-inline-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--accent);
+  border-radius: 0;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0 2px;
+  outline: none;
+  min-width: 0;
+}
+
+/* ── Rename inline button ── */
+.btn-rename-inline {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.btn-rename-inline:hover {
+  color: var(--accent);
+}
+
 /* ── Accordion chevron button ── */
 .btn-chevron {
   background: transparent;

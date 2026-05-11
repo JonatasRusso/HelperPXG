@@ -45,16 +45,16 @@ input[type=number] { -moz-appearance: textfield; }
 }
 */
 
-/* tema dracula high contrast */
+/* tema amethyst gold */
 :root {
-  --bg: #09021d;
-  --surface: #0f022d;
-  --surface2: #13141a;
-  --border: #746106;
-  --accent: #e8b84b;
-  --accent2: #c49a30;
+  --bg: #0c0514;
+  --surface: #150a20;
+  --surface2: #1c0f2c;
+  --border: #b8860b;
+  --accent: #d946ef;
+  --accent2: #c026d3;
   --text: #ffffff;
-  --text-muted: #6272a4;
+  --text-muted: #7a4a8a;
   --success: #50fa7b;
   --danger: #ff5555;
   --radius: 8px;

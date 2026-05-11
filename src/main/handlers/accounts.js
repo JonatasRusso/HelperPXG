@@ -47,6 +47,13 @@ module.exports = function registerAccountHandlers() {
     return publicAccounts(updated);
   });
 
+  ipcMain.handle('accounts:rename', (_, id, name) => {
+    const accounts = store.get('accounts');
+    const updated  = accounts.map(a => a.id === id ? { ...a, name } : a);
+    store.set('accounts', updated);
+    return publicAccounts(updated);
+  });
+
   ipcMain.handle('accounts:setVip', (_, id, days) => {
     const accounts = store.get('accounts');
     const updated  = accounts.map(a =>

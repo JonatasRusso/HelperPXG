@@ -1,6 +1,6 @@
 {
   "name": "pxg-helper",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "PxG Game Helper",
   "main": "src/main/index.js",
   "scripts": {
@@ -11,7 +11,8 @@
   "devDependencies": {
     "electron": "^41.0.2",
     "electron-builder": "^26.8.1",
-    "electron-reload": "^2.0.0-alpha.1"
+    "electron-reload": "^2.0.0-alpha.1",
+    "png-to-ico": "^3.0.1"
   },
   "dependencies": {
     "electron-store": "^8.1.0",

@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('api', {
   reorderAccounts: (ids)  => ipcRenderer.invoke('accounts:reorder', ids),
   setVip:          (id, days) => ipcRenderer.invoke('accounts:setVip', id, days),
   setPassword:     (id, pw)   => ipcRenderer.invoke('accounts:setPassword', id, pw),
+  renameAccount:   (id, name) => ipcRenderer.invoke('accounts:rename', id, name),
 
   // Auto-login
   runAutoLoginFor: (id)  => ipcRenderer.invoke('autologin:runForAccount', id),
