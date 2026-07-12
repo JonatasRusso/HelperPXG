@@ -1,0 +1,264 @@
+/* ── Macro card ── */
+.macro-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  animation: slideIn 0.15s ease;
+}
+.macro-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px 10px 14px;
+}
+.macro-name {
+  flex: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+.macro-hotkey-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent);
+  background: transparent;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.macro-running-dot {
+  color: #50fa7b;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.macro-run-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.macro-run-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Toggle switch ── */
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.toggle-switch input { display: none; }
+.toggle-knob {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+.toggle-knob::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: left 0.2s, background 0.2s;
+}
+.toggle-switch input:checked + .toggle-knob {
+  background: rgba(80, 250, 123, 0.15);
+}
+.toggle-switch input:checked + .toggle-knob::after {
+  left: 19px;
+  background: #50fa7b;
+}
+
+/* ── Editor panel ── */
+.macro-editor-panel {
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.macro-editor-inner {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.macro-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.macro-text-input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.macro-text-input:focus { border-color: var(--accent); }
+
+/* ── Hotkey ── */
+.macro-hotkey-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.macro-hotkey-display {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent);
+  min-width: 40px;
+}
+.macro-conflict-warn {
+  font-size: 12px;
+  color: var(--danger);
+  padding: 4px 0;
+}
+
+/* ── Loop ── */
+.macro-loop-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.macro-loop-opt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.macro-loop-opt input[type=radio] { accent-color: var(--accent); cursor: pointer; }
+.macro-num-input {
+  width: 70px;
+  padding: 5px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.macro-num-input:focus { border-color: var(--accent); }
+
+/* ── Steps ── */
+.macro-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 24px;
+}
+.macro-step-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.1s;
+}
+.macro-step-row.drag-over  { border-color: var(--accent); }
+.macro-step-row.dragging   { opacity: 0.4; }
+.step-badge {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.step-key  { background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+.step-wait { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+.step-value {
+  flex: 1;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+}
+.btn-step-del {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.btn-step-del:hover { color: var(--danger); }
+
+/* ── Add step ── */
+.macro-add-row {
+  display: flex;
+  gap: 8px;
+}
+.macro-sm-btn {
+  padding: 5px 12px !important;
+  font-size: 13px !important;
+}
+.btn-capture-key {
+  width: 100%;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius);
+  color: var(--accent);
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.btn-capture-key:hover { background: var(--surface2); }
+.macro-wait-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Actions ── */
+.macro-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.macro-actions .btn-primary  { padding: 7px 18px; font-size: 14px; }
+.macro-actions .btn-danger   { padding: 7px 14px; font-size: 13px; }
+.macro-actions .btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Misc ── */
+.muted { color: var(--text-muted); }

@@ -57,6 +57,15 @@ contextBridge.exposeInMainWorld('api', {
   // Events
   onTasksReset: (cb) => ipcRenderer.on('tasks:didReset', cb),
 
+  // Macros
+  getMacros:           ()      => ipcRenderer.invoke('macros:get'),
+  addMacro:            (m)     => ipcRenderer.invoke('macros:add', m),
+  updateMacro:         (m)     => ipcRenderer.invoke('macros:update', m),
+  deleteMacro:         (id)    => ipcRenderer.invoke('macros:delete', id),
+  toggleMacro:         (id)    => ipcRenderer.invoke('macros:toggle', id),
+  runMacro:            (id)    => ipcRenderer.invoke('macros:run', id),
+  onMacroStateChanged: (cb)    => ipcRenderer.on('macros:stateChanged', cb),
+
   // Energy
   runTask:         (charId, taskId, tierIdx) => ipcRenderer.invoke('energy:runTask', charId, taskId, tierIdx),
   runRedTask:      (charId, taskId, tierIdx) => ipcRenderer.invoke('energy:runRedTask', charId, taskId, tierIdx),

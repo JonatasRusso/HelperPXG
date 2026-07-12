@@ -4,7 +4,7 @@ if (process.argv.includes('--dev')) {
   });
 }
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, globalShortcut } = require('electron');
 const path = require('path');
 
 const registerWindowHandlers  = require('./handlers/window');
@@ -16,6 +16,7 @@ const registerConfigHandlers   = require('./handlers/config');
 const registerCharacterHandlers = require('./handlers/characters');
 const registerHouseHandlers = require('./handlers/houses');
 const registerEnergyHandlers = require('./handlers/energy');
+const registerMacroHandlers  = require('./handlers/macros');
 const { seedDefaultTasks }   = require('./defaultTasks');
 const store                  = require('./store');
 
@@ -41,6 +42,7 @@ function createWindow() {
 
   registerWindowHandlers(mainWindow);
   registerLauncherHandlers(mainWindow);
+  registerMacroHandlers(mainWindow);
 }
 
 app.whenReady().then(() => {
@@ -61,3 +63,4 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => app.quit());
+app.on('will-quit', () => globalShortcut.unregisterAll());

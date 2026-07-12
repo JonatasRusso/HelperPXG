@@ -7,6 +7,7 @@ const store = new Store({
     accounts:   { type: 'array',  default: [] },
     loginDelay: { type: 'number', minimum: 10, maximum: 10000, default: 1000 },
     characters: { type: 'array',  default: [] },
+    macros:     { type: 'array',  default: [] },
   },
 });
 

@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="styles/characters.css" />
   <link rel="stylesheet" href="styles/houses.css" />
   <link rel="stylesheet" href="styles/energy.css" />
+  <link rel="stylesheet" href="styles/macros.css" />
 </head>
 <body>
   <div class="titlebar">
@@ -52,12 +53,16 @@
           <span class="nav-icon">☑</span>
           <span>Tasks</span>
         </button>
+        <button class="nav-btn" data-page="macros" onclick="navigate('macros'); loadMacros()">
+          <span class="nav-icon">⌨</span>
+          <span>Macros</span>
+        </button>
         <button class="nav-btn" data-page="config" onclick="navigate('config')">
           <span class="nav-icon">⚙</span>
           <span>Config</span>
         </button>
       </div>
-      <div class="sidebar-footer">v1.1</div>
+      <div class="sidebar-footer">v1.2</div>
     </nav>
 
     <main class="content">
@@ -139,6 +144,15 @@
           </div>
         </div>
         <div id="house-list"></div>
+      </section>
+
+      <!-- MACROS PAGE -->
+      <section id="page-macros" class="page">
+        <div class="page-header">
+          <h1>Macros</h1>
+          <button class="btn-primary" onclick="addNewMacro()">+ Novo Macro</button>
+        </div>
+        <div id="macro-list"></div>
       </section>
 
       <!-- CONFIG PAGE -->
@@ -258,6 +272,7 @@
   <script src="modules/accounts.js"></script>
   <script src="modules/characters.js"></script>
   <script src="modules/houses.js"></script>
+  <script src="modules/macros.js"></script>
   <script src="modules/config.js"></script>
   <script>
     (async function () {
