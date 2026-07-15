@@ -10,6 +10,11 @@ module.exports = function registerConfigHandlers() {
   ipcMain.handle('config:getDataPath', () => app.getPath('userData'));
   ipcMain.handle('config:openDataFolder', () => shell.openPath(app.getPath('userData')));
 
+  ipcMain.handle('config:getTheme',      ()      => store.get('theme'));
+  ipcMain.handle('config:setTheme',      (_, id) => { store.set('theme', id); return id; });
+  ipcMain.handle('config:getLoginEnter', ()      => store.get('loginEnter'));
+  ipcMain.handle('config:setLoginEnter', (_, v)  => { store.set('loginEnter', v); return v; });
+
   ipcMain.handle('config:getBgFiles', () => {
     const dir = path.join(__dirname, '../../assets/Personagens');
     return fs.readdirSync(dir)

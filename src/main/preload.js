@@ -39,6 +39,10 @@ contextBridge.exposeInMainWorld('api', {
   getDataPath:    () => ipcRenderer.invoke('config:getDataPath'),
   openDataFolder: () => ipcRenderer.invoke('config:openDataFolder'),
   getBgFiles:     () => ipcRenderer.invoke('config:getBgFiles'),
+  getTheme:       () => ipcRenderer.invoke('config:getTheme'),
+  setTheme:       (id) => ipcRenderer.invoke('config:setTheme', id),
+  getLoginEnter:  () => ipcRenderer.invoke('config:getLoginEnter'),
+  setLoginEnter:  (v)  => ipcRenderer.invoke('config:setLoginEnter', v),
 
   // Characters
   getCharacters:       ()      => ipcRenderer.invoke('characters:get'),

@@ -8,6 +8,8 @@ const store = new Store({
     loginDelay: { type: 'number', minimum: 10, maximum: 10000, default: 1000 },
     characters: { type: 'array',  default: [] },
     macros:     { type: 'array',  default: [] },
+    theme:      { type: 'string', default: 'amethyst-gold' },
+    loginEnter: { type: 'boolean', default: false },
   },
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "pxg-helper",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "PxG Game Helper",
   "author": "Jonatas Russo",
   "main": "src/main/index.js",

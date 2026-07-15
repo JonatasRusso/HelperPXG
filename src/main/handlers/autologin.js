@@ -22,6 +22,7 @@ const KEYEVENTF_UNICODE  = 0x0004;
 const KEYEVENTF_SCANCODE = 0x0008;
 const VK_MENU            = 0xA4;
 const SC_TAB             = 0x0F;
+const SC_RETURN          = 0x1C;
 
 function makeKeyInput(wVk, wScan, dwFlags) {
   const buf = Buffer.alloc(INPUT_SIZE, 0);
@@ -109,6 +110,11 @@ module.exports = function registerAutologinHandlers() {
     tapScan(SC_TAB);
     await sleep(10);
     typeText(password);
+
+    if (store.get('loginEnter')) {
+      await sleep(10);
+      tapScan(SC_RETURN);
+    }
 
     return { success: true };
   });

@@ -9,6 +9,36 @@ async function loadConfig() {
 
   const dataPath = await window.api.getDataPath();
   document.getElementById('data-path').value = dataPath;
+
+  const theme = await window.api.getTheme();
+  applyTheme(theme);
+  renderThemePicker(theme);
+
+  const loginEnter = await window.api.getLoginEnter();
+  const tog = document.getElementById('login-enter-toggle');
+  if (tog) tog.checked = loginEnter;
+}
+
+function renderThemePicker(activeId) {
+  const el = document.getElementById('theme-picker');
+  if (!el) return;
+  el.innerHTML = Object.entries(THEMES).map(([id, t]) => `
+    <button class="theme-chip ${id === activeId ? 'active' : ''}" onclick="selectTheme('${id}')" title="${t.label}">
+      <span class="theme-chip-dot" style="background:${t.accent};box-shadow:0 0 6px ${t.accent}44"></span>
+      <span class="theme-chip-border" style="background:${t.border}"></span>
+      <span class="theme-chip-label">${t.label}</span>
+    </button>
+  `).join('');
+}
+
+async function selectTheme(id) {
+  applyTheme(id);
+  await window.api.setTheme(id);
+  renderThemePicker(id);
+}
+
+async function setLoginEnterOpt(val) {
+  await window.api.setLoginEnter(val);
 }
 
 async function browseGame() {

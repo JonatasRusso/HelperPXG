@@ -62,7 +62,7 @@
           <span>Config</span>
         </button>
       </div>
-      <div class="sidebar-footer">v1.2</div>
+      <div class="sidebar-footer">v1.3</div>
     </nav>
 
     <main class="content">
@@ -77,6 +77,15 @@
         </div>
         <div id="account-list" class="account-list"></div>
         <div id="login-status" class="status-msg"></div>
+        <div class="login-options-bar">
+          <label class="login-opt-label">
+            <span>Pressionar Enter após login</span>
+            <label class="toggle-switch" title="Pressionar Enter ao final do auto-login">
+              <input type="checkbox" id="login-enter-toggle" onchange="setLoginEnterOpt(this.checked)">
+              <span class="toggle-knob"></span>
+            </label>
+          </label>
+        </div>
       </section>
 
       <!-- TASKS PAGE -->
@@ -229,6 +238,11 @@
         </div>
 
         <div class="card">
+          <label class="field-label">Tema</label>
+          <div id="theme-picker" class="theme-picker"></div>
+        </div>
+
+        <div class="card">
           <label class="field-label">Pasta de dados</label>
           <div class="path-row">
             <input type="text" id="data-path" placeholder="Carregando..." readonly />
@@ -261,6 +275,7 @@
     </div>
   </div>
 
+  <script src="utils/themes.js"></script>
   <script src="utils/icons.js"></script>
   <script src="utils/dom.js"></script>
   <script src="utils/clan-colors.js"></script>
