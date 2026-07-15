@@ -10,8 +10,15 @@ Baixe o instalador na página de [Releases](../../releases/latest).
 
 ## Changelog
 
+### v1.3
+- **Seletor de tema** — escolha entre 5 temas visuais diretamente no Config (Amethyst Gold, Original, Darcula, Midnight Blue, Crimson Dark). A preferência é salva e aplicada automaticamente
+- **Toggle "Pressionar Enter após login"** — opção na tela de Login para controlar se o auto-login pressiona Enter ao final. Desligado por padrão para evitar envio acidental de credenciais no chat
+
+### v1.2
+- **Sistema de macros** — crie macros com sequências de teclas e esperas, ative via hotkey global, configure loop por contagem, tempo ou infinito, e reordene steps com drag-and-drop
+
 ### v1.1
-- **Auto-login sem Enter automático** — o login preenche usuário e senha mas não pressiona Enter, evitando que as credenciais sejam enviadas no chat caso o jogo já esteja logado
+- **Auto-login sem Enter automático** — o login preenche usuário e senha sem pressionar Enter por padrão
 - **Renomear conta inline** — clique no ícone de caneta ao lado do nome da conta, edite e pressione Enter para salvar
 
 ### v1.0
@@ -43,7 +50,14 @@ Baixe o instalador na página de [Releases](../../releases/latest).
 - Rastreamento de bid de houses com countdown até o próximo server save
 - Marcação de CP separado
 
+### Macros
+- Crie sequências de teclas e esperas com nome e hotkey global
+- Ative/pause via hotkey, controle de loop (vezes, tempo ou infinito)
+- Reordenação de steps por drag-and-drop
+
 ### Configurações
+- Seletor de tema visual (5 opções)
+- Toggle para pressionar Enter após o auto-login
 - Caminho do executável do jogo com botão de launch
 - Delay configurável antes do auto-login
 
@@ -51,7 +65,7 @@ Baixe o instalador na página de [Releases](../../releases/latest).
 
 ## Instalação
 
-1. Baixe o arquivo `PxG Helper Setup 1.1.0.exe` em [Releases](../../releases/latest)
+1. Baixe o arquivo `PxG Helper Setup 1.3.0.exe` em [Releases](../../releases/latest)
 2. Execute o instalador
 3. Abra o PxG Helper
 
