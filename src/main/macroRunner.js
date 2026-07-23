@@ -65,15 +65,28 @@ function sleep(ms) {
 const running = new Map(); // id -> cancel()
 
 async function executeMacro(macro, onStateChange) {
-  if (running.has(macro.id)) return;
+  if (running.has(macro.id)) {
+    console.log(`[macro] executeMacro ignorado — id=${macro.id} já está no map running`);
+    return;
+  }
 
   let cancelled = false;
-  running.set(macro.id, () => { cancelled = true; });
+  const instanceId = Date.now();
+  console.log(`[macro] executeMacro START id=${macro.id} instance=${instanceId}`);
+  running.set(macro.id, () => {
+    console.log(`[macro] cancel() chamado id=${macro.id} instance=${instanceId}`);
+    cancelled = true;
+  });
   onStateChange?.(macro.id, 'running');
 
   const runOnce = async () => {
-    for (const step of macro.steps) {
-      if (cancelled) return false;
+    for (let i = 0; i < macro.steps.length; i++) {
+      const step = macro.steps[i];
+      if (cancelled) {
+        console.log(`[macro] cancelado antes do step[${i}] (${step.type}:${step.key || step.ms+'ms'}) instance=${instanceId}`);
+        return false;
+      }
+      console.log(`[macro] step[${i}] ${step.type}:${step.key || step.ms+'ms'} instance=${instanceId}`);
       if (step.type === 'key')  sendKey(step.key);
       if (step.type === 'wait') await sleep(step.ms);
     }
@@ -91,12 +104,16 @@ async function executeMacro(macro, onStateChange) {
       while (!cancelled) await runOnce();
     }
   } finally {
+    console.log(`[macro] executeMacro FINALLY id=${macro.id} instance=${instanceId} cancelled=${cancelled}`);
     running.delete(macro.id);
     onStateChange?.(macro.id, 'stopped');
   }
 }
 
-function stopMacro(id)  { running.get(id)?.(); }
+function stopMacro(id) {
+  console.log(`[macro] stopMacro id=${id} isRunning=${running.has(id)}`);
+  running.get(id)?.();
+}
 function isRunning(id)  { return running.has(id); }
 
 module.exports = { executeMacro, stopMacro, isRunning };
